@@ -1,0 +1,352 @@
+
+
+/*
+GLOBAL VARIABLES
+*/
+
+* {
+    -fx-main-bg-color: black;
+    -fx-main-text-color: whitesmoke;
+    -fx-ink: #062F4f;
+    -fx-posy: #813772;
+    -fx-embers: #B82601;
+
+    -fx-text-fill: whitesmoke;
+}
+
+/*CALENDAR*/
+
+.calendar-window {
+    -fx-background-color: radial-gradient(radius 150%, -fx-ink, -fx-posy, -fx-embers);
+}
+.top-label-text {
+    -fx-font-size: 35px;
+    -fx-font-family: "The bringa";
+    -fx-text-fill: -fx-main-text-color;
+    -fx-background-color: transparent;
+}
+
+.button-custom {
+    -fx-font-family: 'Allan';
+    -fx-text-fill: -fx-main-text-color;
+    -fx-font-size: 20px; /* Font size */
+    -fx-padding: 10px 20px; /* Padding */
+    -fx-border-radius: 5px; /* Border radius */
+    -fx-border-style: solid;
+    -fx-border-width: 3px;
+    -fx-border-color: rgba(245, 245, 245, 0.5);
+    -fx-background-color: transparent;
+}
+
+.button-custom:hover {
+    -fx-background-color: rgba(157, 71, 140, 0.68);
+    -fx-font-size: 22px;
+}
+
+.special-button {
+    -fx-font-family: 'Poppins';
+    -fx-font-size: 16px;
+    -fx-text-fill: -fx-main-text-color;
+    -fx-border-radius: 5px; /* Border radius */
+    -fx-border-style: solid;
+    -fx-border-width: 3px;
+    -fx-border-color: rgba(245, 245, 245, 0.5);
+    -fx-background-color: rgba(184, 38, 1, 0.52);
+}
+
+.special-button:hover {
+    -fx-background-color: -fx-embers;
+    -fx-font-size: 17px;
+}
+
+/*the left and right arrows*/
+.arrows {
+    -fx-text-fill: -fx-main-text-color;
+    -fx-font-size: 70px;
+    -fx-background-color: transparent;
+}
+
+.extra_button-custom {
+    -fx-font-family: 'Allan';
+    -fx-background-color: rgba(6, 47, 79, 0.51);
+    -fx-text-fill: rgba(255, 255, 255, 0.616); /* White text color */
+    -fx-font-size: 20px; /* Font size */
+    -fx-padding: 10px 20px; /* Padding */
+    -fx-border-radius: 5px; /* Border radius */
+    -fx-border-style: solid;
+    -fx-border-width: 3px;
+    -fx-border-color: rgba(245, 245, 245, 0.5);
+}
+
+.week-label {
+    -fx-background-color: transparent;
+}
+
+/*the top flowpane*/
+.topFlowPane {
+    -fx-background-color: -fx-main-bg-color;
+}
+
+/*the calendar grid*/
+.calendar-grid {
+    -fx-background-size: cover;
+    -fx-max-width: 80px;
+    -fx-max-height: 80px;
+    -fx-padding: 15px 15px;
+    -fx-background-color: -fx-posy;
+    -fx-effect: dropshadow(gaussian, rgba(197, 198, 199, 0.53), 10, 200, 0, 0);
+}
+
+/*WORKOUT SCENE */
+.workoutTop {
+    -fx-border-width: 2px;
+    -fx-border-style: solid;
+}
+
+.workout-pane {
+    -fx-background-color: radial-gradient(radius 150%, #02B861, #02B1B8, #0253B8);
+}
+/*workout buttons*/
+
+.workout-top-field {
+    -fx-font-family: "The bringa";
+    -fx-background-color: black;
+    -fx-padding: 10;
+    -fx-text-fill: whitesmoke;
+    -fx-font-size: 30px; /* Font size */
+    -fx-border-radius: 5px; /* Border radius */
+    -fx-border-style: solid;
+    -fx-border-width: 3px;
+    -fx-border-color: whitesmoke;
+    -fx-border-insets: 10px;
+}
+
+.back-button {
+    -fx-background-color: black;
+}
+
+.top-pane {
+    -fx-padding: 25px;
+    -fx-margin: 25px;
+    -fx-background-color: black;
+}
+
+.workout-hbox {
+    -fx-background-color: black;
+}
+
+.bottom-exercise-pane {
+    -fx-padding: 20px;
+    -fx-margin: 20px;
+    -fx-background-color: black;
+}
+
+.exercise-label {
+    -fx-border-width: 2px;
+    -fx-border-insets: 5px;
+    -fx-border-style: solid;
+    -fx-border-color: rgba(245, 245, 245, 0.5);
+    -fx-font-style: italic;
+    -fx-font-weight: bold;
+    -fx-font-size: 18px;
+}
+
+.exercise-label:focused {
+    -fx-font-size: 18px;
+    -fx-border-width: 2px;
+    -fx-border-style: solid;
+    -fx-border-color: black;
+    -fx-font-style: italic;
+    -fx-font-weight: bold;
+}
+
+.exercise-button {
+    -fx-font-size: 16px;
+    -fx-font-family: 'Poppins';
+    -fx-border-width: 2px;
+    -fx-border-style: solid;
+    -fx-border-color: black;
+    -fx-margin: 0;
+    -fx-padding: 0;
+    -fx-background-color: transparent;
+}
+
+.exercise-button:focused {
+    -fx-font-size: 17px;
+}
+
+.exercise-name-button {
+    -fx-font-family: 'Poppins';
+    -fx-font-weight: bold;
+    -fx-font-size: 20px;
+    -fx-background-color: transparent;
+    -fx-border-style: solid;
+    -fx-border-width: 2px;
+    -fx-border-insets: -.5px;
+}
+
+.bottom-workout-button {
+    -fx-font-family: "Poppins ExtraBold";
+    -fx-background-color: black;
+    -fx-padding: 10;
+    -fx-text-fill: whitesmoke;
+    -fx-font-size: 20px; /* Font size */
+    -fx-border-radius: 5px; /* Border radius */
+    -fx-border-style: solid;
+    -fx-border-width: 3px;
+    -fx-border-insets: 10px;
+    -fx-border-color: whitesmoke;
+}
+
+.overload-style {
+    -fx-text-fill: whitesmoke;
+    -fx-padding: 5px;
+    /*-fx-border-color: rgba(245, 245, 245, 0.5);*/
+    -fx-background-color: rgba(245, 245, 245, 0.29);
+}
+
+/*ALERTS*/
+
+.dialog-pane {
+    -fx-background-color: grey;
+}
+.dialog-pane .header-panel {
+    -fx-background-color: black;
+    -fx-text-fill: whitesmoke;
+    -fx-font-family: 'Poppins ExtraBold';
+    -fx-text-alignment: center;
+    -fx-alignment: center;
+}
+
+.dialog-pane .button {
+    -fx-background-color: black;
+    -fx-text-fill: whitesmoke;
+    -fx-font-family: "Poppins ExtraBold";
+}
+
+.dialog-pane .button:hover {
+    -fx-background-color: rgba(0, 0, 0, 0.77);
+    -fx-font-size: 14px;
+    -fx-text-fill: whitesmoke;
+    -fx-font-family: "Poppins ExtraBold";
+}
+
+/*SCROLL BAR*/
+
+.scroll-bar {
+    -fx-background-color: black;
+    -fx-border-color: black;
+    -fx-border-width: 2px;
+    -fx-border-style: solid;
+}
+
+/*GOAL MANAGEMENT PAGE*/
+
+.goal-top-section {
+    -fx-padding: 25px;
+    -fx-margin: 25px;
+    -fx-background-color: black;
+}
+
+.goal-top-section-label{
+    -fx-font-family: "The bringa";
+    -fx-background-color: black;
+    -fx-padding: 10;
+    -fx-text-fill: whitesmoke;
+    -fx-font-size: 30px; /* Font size */
+    -fx-border-radius: 5px; /* Border radius */
+    -fx-border-style: solid;
+    -fx-border-width: 3px;
+    -fx-border-color: whitesmoke;
+    -fx-border-insets: 10px;
+}
+
+.goal-bottom-section {
+    -fx-padding: 20px;
+    -fx-margin: 20px;
+    -fx-background-color: black;
+}
+
+.category-menu-option {
+    -fx-font-family: 'Poppins';
+    -fx-font-weight: bold;
+    -fx-font-size: 21px;
+}
+
+.category-menu-option:hover {
+    -fx-background-color: #5A02B8;
+}
+
+.category-menu-option:focused {
+    -fx-background-color: #5A02B8;
+}
+
+.category-menu-header {
+    -fx-font-size: 21px;
+    -fx-text-alignment: center;
+    -fx-font-family: 'Poppins';
+    -fx-background-color: transparent;
+    -fx-font-style: italic;
+}
+
+/*CONSISTENCY MENU*/
+
+.consistency-menu {
+    -fx-background-color: black;
+    -fx-border-style: solid;
+    -fx-border-width: 2px;
+    -fx-border-color: whitesmoke;
+    -fx-padding: 15px;
+}
+
+.consistency-label:focused {
+    -fx-background-color: black;
+}
+
+.consistency-label:hover {
+    -fx-background-color: black;
+}
+
+.consistency-textfield {
+    -fx-text-fill: black;
+    -fx-highlight-fill: black;
+    -fx-highlight-text-fill: black;
+    -fx-border-style: solid;
+    -fx-border-width: 2px;
+    -fx-border-color: whitesmoke;
+}
+
+/*CONTEXT MENU*/
+
+.context-menu {
+    -fx-background-color: black;
+    -fx-border-style: solid;
+    -fx-border-width: 2px;
+    -fx-border-color: whitesmoke;
+    -fx-padding: 15px;
+}
+
+.menu-option {
+    -fx-font-family: 'Poppins';
+    -fx-font-weight: bold;
+    -fx-font-size: 21px;
+}
+
+.menu-option:hover {
+    -fx-background-color: #B80298;
+}
+
+.menu-option:focused {
+    -fx-background-color: #B80298;
+}
+
+/*CURRENT GOALS*/
+
+.current-goal-label {
+    -fx-font-size: 20px;
+    -fx-text-fill: black;
+}
+
+
+
+
