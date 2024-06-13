@@ -59,6 +59,17 @@ GLOBAL VARIABLES
     -fx-font-size: 17px;
 }
 
+.special-gray-button {
+    -fx-font-family: 'Poppins';
+    -fx-background-color: rgba(6, 47, 79, 0.51);
+    -fx-text-fill: rgba(255, 255, 255, 0.616); /* White text color */
+    -fx-font-size: 16px; /* Font size */
+    -fx-border-radius: 5px; /* Border radius */
+    -fx-border-style: solid;
+    -fx-border-width: 3px;
+    -fx-border-color: rgba(245, 245, 245, 0.5);
+}
+
 /*the left and right arrows*/
 .arrows {
     -fx-text-fill: -fx-main-text-color;
@@ -191,11 +202,23 @@ GLOBAL VARIABLES
     -fx-padding: 10;
     -fx-text-fill: whitesmoke;
     -fx-font-size: 20px; /* Font size */
-    -fx-border-radius: 5px; /* Border radius */
+    -fx-border-radius: 17px; /* Border radius */
     -fx-border-style: solid;
     -fx-border-width: 3px;
     -fx-border-insets: 10px;
     -fx-border-color: whitesmoke;
+    -fx-background-radius: 17px;
+}
+
+.bottom-workout-button:hover {
+    -fx-background-color: rgba(31, 31, 31, 0.74);
+}
+
+.bottom-workout-instruction-label {
+    -fx-font-family: 'Poppins';
+    -fx-font-style: italic;
+    -fx-font-size: 10px;
+
 }
 
 .overload-style {
@@ -271,6 +294,7 @@ GLOBAL VARIABLES
     -fx-font-family: 'Poppins';
     -fx-font-weight: bold;
     -fx-font-size: 21px;
+    -fx-background-radius: 17px;
 }
 
 .category-menu-option:hover {
@@ -330,6 +354,7 @@ GLOBAL VARIABLES
     -fx-font-family: 'Poppins';
     -fx-font-weight: bold;
     -fx-font-size: 21px;
+    -fx-background-radius: 17px;
 }
 
 .menu-option:hover {

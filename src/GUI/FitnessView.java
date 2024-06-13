@@ -282,7 +282,23 @@ public class FitnessView extends Application {
                      int finalDay1 = day;
                      b.setOnAction((event) -> makeWorkoutScene(primaryStage, finalDay1 + "", month, year));
                  } else {
-                     b.getStyleClass().add("extra_button-custom");
+                     int actualMonth;
+                     int actualYear;
+                     //If the month is january, set it to december and the year - 1
+                     if (month == 11){
+                         actualMonth = 1;
+                         actualYear = year - 1;
+                     } else {
+                         actualMonth = month + 2;
+                         actualYear = year;
+                     }
+                     if (sql.workoutExists(actualMonth + "/" + day + "/" + actualYear)){
+                         b.setText(sql.getWorkoutName(month + 2 + "/" + day + "/" + year));
+                         b.getStyleClass().add("special-gray-button");
+                     } else {
+                         b.setText(day + "");
+                         b.getStyleClass().add("extra_button-custom");
+                     }
                  }
                  b.setMinWidth((double) (WINDOW_WIDTH) / 10);
                  b.setMinHeight((double) (WINDOW_HEIGHT) / 11);
@@ -323,7 +339,10 @@ public class FitnessView extends Application {
             setAlignment(Pos.TOP_LEFT);
             getStyleClass().add("back-button");
             //Back button brings you back to the current month
-            setOnMouseClicked((event) -> calendarScene(primaryStage, CURRENT_YEAR, CURRENT_MONTH));
+            setOnMouseClicked((event) -> {
+                Platform.runLater(() ->calendarScene(primaryStage, CURRENT_YEAR, CURRENT_MONTH));
+
+            });
         }};
 
         subBorderPane.setLeft(backButton);
@@ -960,7 +979,7 @@ public class FitnessView extends Application {
             setAlignment(Pos.TOP_LEFT);
             getStyleClass().add("back-button");
             //Back button brings you back to the current month
-            setOnMouseClicked((event) -> calendarScene(primaryStage, year, month));
+            setOnMouseClicked((event) -> calendarScene(primaryStage, CURRENT_YEAR, CURRENT_MONTH));
         }});
         topBorderPane.getStyleClass().add("top-pane");
 
@@ -1030,26 +1049,51 @@ public class FitnessView extends Application {
         scrollPane.setFitToHeight(true); // Optional: to fit the height of the GridPane to the ScrollPane's height
         main.setCenter(scrollPane);
 
+        //Graphics for the buttons
+        VBox addExerciseGraphic = new VBox();
+        Label label1 = new Label("Add Exercise");
+        Label label2 = new Label("(ENTER)");
+        label2.getStyleClass().add("bottom-workout-instruction-label");
+        addExerciseGraphic.setAlignment(Pos.CENTER);
+        addExerciseGraphic.getChildren().addAll(label1, label2);
+
+        VBox addSetGraphic = new VBox();
+        Label label3 = new Label("Add Set");
+        Label label4 = new Label("(TAB)");
+        label4.getStyleClass().add("bottom-workout-instruction-label");
+        addSetGraphic.getChildren().addAll(label3, label4);
+        addSetGraphic.setAlignment(Pos.CENTER);
+
+        VBox deleteGraphic = new VBox();
+        Label label5 = new Label("Delete");
+        Label label6 = new Label("(ALT)");
+        label6.getStyleClass().add("bottom-workout-instruction-label");
+        deleteGraphic.setAlignment(Pos.CENTER);
+        deleteGraphic.getChildren().addAll(label5, label6);
+
         HBox bottom = new HBox();
-        bottom.getChildren().addAll(new Button("Add Exercise"){{
+        bottom.getChildren().addAll(new Button(){{
             setMinHeight(EXERCISE_BUTTON_HEIGHT);
                 setPrefWidth((double) WINDOW_WIDTH /4);
                 setAlignment(Pos.CENTER);
                 setFont(new Font(EXERCISE_FONT_SIZE));
                 getStyleClass().add("bottom-workout-button");
+                setGraphic(addExerciseGraphic);
                 setOnAction((event) -> addExercise(exerciseGridPane, dateTextField, titleTextField));
-        }}, new Button("Add Set"){{
+        }}, new Button(){{
                 setMinHeight(EXERCISE_BUTTON_HEIGHT);
                 setPrefWidth((double) WINDOW_WIDTH /4);
                 setAlignment(Pos.CENTER);
                 setFont(new Font(EXERCISE_FONT_SIZE));
+                setGraphic(addSetGraphic);
             getStyleClass().add("bottom-workout-button");
                 setOnAction((event) -> addSet(exerciseGridPane, dateTextField, titleTextField));
-        }}, new Button("Delete"){{
+        }}, new Button(){{
             setMinHeight(EXERCISE_BUTTON_HEIGHT);
             setPrefWidth(WINDOW_WIDTH/4);
             setAlignment(Pos.CENTER);
             setFont(new Font(EXERCISE_FONT_SIZE));
+            setGraphic(deleteGraphic);
             getStyleClass().add("bottom-workout-button");
             setOnAction((event) -> {
                 try {
@@ -1060,18 +1104,30 @@ public class FitnessView extends Application {
             });
         }});
 
+
         bottom.setAlignment(Pos.BOTTOM_CENTER);
         bottom.getStyleClass().add("bottom-exercise-pane");
         main.setBottom(bottom);
 
         Scene workout = new Scene(main);
 
-//        //When you press enter, it creates a new exercise.
         workout.setOnKeyPressed((event -> {
+            //If the user pressed enter, add exercise
             if (event.getCode() == KeyCode.ENTER){
                 Platform.runLater(() -> addExercise(exerciseGridPane, dateTextField, titleTextField));
             }
+            //If the user pressed alt, delete exercise
+            else if (event.getCode() == KeyCode.ALT){
+                Platform.runLater(() -> {
+                    try {
+                        delete(exerciseGridPane, dateTextField, titleTextField);
+                    } catch (SQLException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
+            }
         }));
+
         workout.getStylesheets().add(getClass().getResource("/CSS/style.css").toExternalForm());
         primaryStage.setScene(workout);
     }
