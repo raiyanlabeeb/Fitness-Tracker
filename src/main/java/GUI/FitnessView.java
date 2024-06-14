@@ -56,12 +56,12 @@ public class FitnessView extends Application {
     private TextField exercise_field;
 
     public void init(){
-        Font.loadFont(getClass().getResourceAsStream("/FONTS/Thebringa-Regular.ttf"), 14);
-        Font.loadFont(getClass().getResourceAsStream("/FONTS/Poppins-Regular.ttf"), 14);
-        Font.loadFont(getClass().getResourceAsStream("/FONTS/Poppins-Bold.ttf"), 14);
-        Font.loadFont(getClass().getResourceAsStream("/FONTS/Poppins-BoldItalic.ttf"), 14);
-        Font.loadFont(getClass().getResourceAsStream("/FONTS/Allan-Regular.ttf"), 14);
-        Font.loadFont(getClass().getResourceAsStream("/FONTS/Poppins-Italic.ttf"), 14);
+        Font.loadFont(getClass().getResourceAsStream("/main/java/FONTS/Thebringa-Regular.ttf"), 14);
+        Font.loadFont(getClass().getResourceAsStream("/main/java/FONTS/Poppins-Regular.ttf"), 14);
+        Font.loadFont(getClass().getResourceAsStream("/main/java/FONTS/Poppins-Bold.ttf"), 14);
+        Font.loadFont(getClass().getResourceAsStream("/main/java/FONTS/Poppins-BoldItalic.ttf"), 14);
+        Font.loadFont(getClass().getResourceAsStream("/main/java/FONTS/Allan-Regular.ttf"), 14);
+        Font.loadFont(getClass().getResourceAsStream("/main/java/FONTS/Poppins-Italic.ttf"), 14);
 
         sql = new SQLconnector();
     }
@@ -318,7 +318,7 @@ public class FitnessView extends Application {
 
 
         Scene mainScene = new Scene(main);
-        mainScene.getStylesheets().add(getClass().getResource("/CSS/style.css").toExternalForm());
+        mainScene.getStylesheets().add(getClass().getResource("/main/java/CSS/style.css").toExternalForm());
         primaryStage.setScene(mainScene);
     }
 
@@ -436,7 +436,7 @@ public class FitnessView extends Application {
 
 
         Scene mainScene = new Scene(mainBorderPane);
-        mainScene.getStylesheets().add(getClass().getResource("/CSS/style.css").toExternalForm());
+        mainScene.getStylesheets().add(getClass().getResource("/main/java/CSS/style.css").toExternalForm());
         primaryStage.setScene(mainScene);
     }
 
@@ -779,7 +779,7 @@ public class FitnessView extends Application {
      */
     public void createDialog(String message){
         Dialog<String> dialog = new Dialog<>();
-        dialog.getDialogPane().getStylesheets().add(getClass().getResource("/CSS/style.css").toExternalForm());
+        dialog.getDialogPane().getStylesheets().add(getClass().getResource("/main/java/CSS/style.css").toExternalForm());
         dialog.getDialogPane().getStyleClass().add("dialog");
         dialog.setTitle("Error");
         dialog.setHeaderText(message);
@@ -1128,7 +1128,7 @@ public class FitnessView extends Application {
             }
         }));
 
-        workout.getStylesheets().add(getClass().getResource("/CSS/style.css").toExternalForm());
+        workout.getStylesheets().add(getClass().getResource("/main/java/CSS/style.css").toExternalForm());
         primaryStage.setScene(workout);
     }
 
