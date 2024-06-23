@@ -1,13 +1,11 @@
 package SQL;
 
-import com.sun.security.jgss.GSSUtil;
+import javafx.scene.control.ComboBox;
 
 import java.sql.*;
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.WeekFields;
-import java.util.Calendar;
-import java.util.Date;
+
 import java.util.Locale;
 import java.util.Objects;
 
@@ -27,6 +25,79 @@ public class SQLconnector {
         }
     }
 
+    /**
+     * Adds exercise names to comboBox
+     * @param comboBox the combobox to add
+     */
+    public void addComboBoxExercises(ComboBox<String> comboBox){
+        try {
+            Statement statement = connection.createStatement();
+            ResultSet data = statement.executeQuery("SELECT DISTINCT exercise_name FROM exercise");
+            while (data.next()) {
+                comboBox.getItems().add(data.getString(1));
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Get the minimum and maximum weight for a certain exercise from start to end date
+     * @param exercise exercise name
+     * @param start start date
+     * @param end end date
+     * @return int
+     */
+    public int[] getMinMaxWeight(String exercise, String start, String end){
+        int[] result = new int[2];
+        try {
+            Statement statement = connection.createStatement();
+            ResultSet data = statement.executeQuery("SELECT \n" +
+                    "    MIN(weight),\n" +
+                    "    MAX(weight)\n" +
+                    "FROM \n" +
+                    "    exercise\n" +
+                    "WHERE exercise_name = + '" + exercise + "' AND workout_date >= + '" + formatDate(start) + "' AND workout_date <= '" + formatDate(end) + "' \n");
+            if (data.next()) {
+                result[0] = data.getInt(1);
+                result[1] = data.getInt(2);
+            }
+            return result;
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * Returns a table of the weight's done by a certain exercise on every date.
+     * @param exercise the exercise name
+     * @param start the start date
+     * @param end the end date
+     * @return the results
+     */
+    public ResultSet getWeightGraphData(String exercise, String start, String end){
+        try {
+            Statement statement = connection.createStatement();
+            start = formatDate(start);
+            end = formatDate(end);
+            ResultSet data = statement.executeQuery("SELECT \n" +
+                    "    workout_date,\n" +
+                    "    MAX(weight) AS max_weight\n" +
+                    "FROM \n" +
+                    "    exercise\n" +
+                    "WHERE exercise_name = + '" + exercise + "' AND workout_date >= + '" + start + "' AND workout_date <= '" + end + "' \n" +
+                    "GROUP BY \n" +
+                    "    workout_date\n" +
+                    "ORDER BY workout_date");
+            if (data.next()){
+                return data;
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
     /**
      * Adds to the exercise and workout tables
      * @param w_title Workout title ex: Push
@@ -83,7 +154,7 @@ public class SQLconnector {
     }
 
     /**
-     * Formats the date in YYYY-MM-DD
+     * Formats the date in YYYY-MM-DD from MM-DD-YYYY
      * @param w_date workout date
      * @return formatted date
      */

@@ -32,6 +32,7 @@ GLOBAL VARIABLES
     -fx-font-size: 20px; /* Font size */
     -fx-padding: 10px 20px; /* Padding */
     -fx-border-radius: 5px; /* Border radius */
+    -fx-background-radius: 5px;
     -fx-border-style: solid;
     -fx-border-width: 3px;
     -fx-border-color: rgba(245, 245, 245, 0.5);
@@ -48,6 +49,7 @@ GLOBAL VARIABLES
     -fx-font-size: 16px;
     -fx-text-fill: -fx-main-text-color;
     -fx-border-radius: 5px; /* Border radius */
+    -fx-background-radius: 5px;
     -fx-border-style: solid;
     -fx-border-width: 3px;
     -fx-border-color: rgba(245, 245, 245, 0.5);
@@ -65,6 +67,7 @@ GLOBAL VARIABLES
     -fx-text-fill: rgba(255, 255, 255, 0.616); /* White text color */
     -fx-font-size: 16px; /* Font size */
     -fx-border-radius: 5px; /* Border radius */
+    -fx-background-radius: 5px;
     -fx-border-style: solid;
     -fx-border-width: 3px;
     -fx-border-color: rgba(245, 245, 245, 0.5);
@@ -84,6 +87,7 @@ GLOBAL VARIABLES
     -fx-font-size: 20px; /* Font size */
     -fx-padding: 10px 20px; /* Padding */
     -fx-border-radius: 5px; /* Border radius */
+    -fx-background-radius: 5px;
     -fx-border-style: solid;
     -fx-border-width: 3px;
     -fx-border-color: rgba(245, 245, 245, 0.5);
@@ -367,10 +371,50 @@ GLOBAL VARIABLES
 
 /*CURRENT GOALS*/
 
-.current-goal-label {
-    -fx-font-size: 20px;
-    -fx-text-fill: black;
+.current-goals-container {
+    -fx-background-color: #121212;
 }
+
+.card {
+    -fx-font-size: 20px;
+    -fx-border-width: 1px;
+    -fx-border-style: solid;
+    -fx-border-color: rgba(245, 245, 245, 0.4);
+    -fx-background-color: #212121;
+    -fx-background-radius: 7px;
+    -fx-border-radius: 7px;
+    -fx-font-family: 'Poppins';
+}
+
+.card:focused, .card:hover {
+    -fx-background-color: #2a2a2a;
+}
+
+.card-goal {
+    -fx-text-alignment: center;
+    -fx-padding: 5px;
+    -fx-text-fill: rgba(245, 245, 245, 0.9);
+}
+
+.card-progress {
+    -fx-text-alignment: center;
+    -fx-text-fill: rgba(245, 245, 245, 0.9);
+    -fx-font-weight: bold;
+    -fx-padding: 5px;
+}
+
+.card-header {
+    -fx-text-fill: whitesmoke;
+    -fx-font-weight: bold;
+    -fx-font-size: 16px;
+    -fx-padding: 20px;
+    -fx-border-width: 2px;
+    -fx-border-style: solid;
+    -fx-border-color: #5A02B8;
+    -fx-border-radius: 25px;
+}
+
+
 
 
 
