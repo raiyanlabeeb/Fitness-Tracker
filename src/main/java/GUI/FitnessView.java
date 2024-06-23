@@ -13,9 +13,12 @@ import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
+import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
@@ -23,10 +26,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.YearMonth;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -141,42 +141,59 @@ public class FitnessView extends Application {
         createWorkout.setOnAction((event -> makeWorkoutScene(primaryStage, null, 0, 0)));
         manageGoals.setOnAction((event -> makeGoalsScene(primaryStage)));
         progress.setOnAction((event -> makeProgressScene(primaryStage)));
-        Label plus = new Label("+"){{
-            setFont(new Font(TOP_LABEL_FONT, TOP_LABEL_SIZE));
-            getStyleClass().add("top-label-text");
-            setOnMouseClicked((event) -> contextMenu.show(this, 800, 150));
-        }};
+
+//        Label plus = new Label("+"){{
+//            setFont(new Font(TOP_LABEL_FONT, TOP_LABEL_SIZE));
+//            getStyleClass().add("top-label-text");
+//            setOnMouseClicked((event) -> contextMenu.show(this, 800, 150));
+//        }};
+
+        Image plusImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/main/java/IMAGES/plus-small.png"))); //PLUS BUTTON
+        ImageView plus = new ImageView(plusImage);
+        plus.setFitWidth(60);
+        plus.setFitHeight(60);
+        plus.setPreserveRatio(true);
+        plus.setOnMouseClicked((event) -> contextMenu.show(plus, 800, 150));
+        BorderPane.setAlignment(plus, Pos.CENTER);
 
         Label title = new Label("My Fitness Calendar"){{
             setFont(new Font(TOP_LABEL_FONT, TOP_LABEL_SIZE));
             getStyleClass().add("top-label-text");
         }};
-        Label rightArrow = new Label(">"){{
-            setFont(new Font(TOP_LABEL_FONT, TOP_LABEL_SIZE));
-            getStyleClass().add("arrows");
-            setOnMouseClicked((event) -> {
-                //If it's the december
-                if (month + 1 == 12){
-                    calendarScene(primaryStage, year + 1, 0);
-                } else {
-                    calendarScene(primaryStage, year, month + 1);
-                }
-                
-            });
-        }};
-        Label leftArrow = new Label("<"){{
-            setFont(new Font(TOP_LABEL_FONT, TOP_LABEL_SIZE));
-            getStyleClass().add("arrows");
-            setOnMouseClicked((event) -> {
-                //If it's january
-                if(month == 0){
-                    calendarScene(primaryStage, year - 1, 11);
-                } else {
-                    calendarScene(primaryStage, year, month - 1);
-                }
-            });
-        }};
-        top.getChildren().addAll(leftArrow, monthLabel, title, plus, rightArrow);
+
+        Image rightButtonImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/main/java/IMAGES/angle-double-small-right (calendar).png"))); //RIGHT BUTTON
+        ImageView rightButton = new ImageView(rightButtonImage);
+        rightButton.setFitWidth(70);
+        rightButton.setFitHeight(70);
+        rightButton.setPreserveRatio(true);
+        rightButton.setOnMouseClicked((event) -> {
+//                //If it's the december
+            if (month + 1 == 12){
+                calendarScene(primaryStage, year + 1, 0);
+            } else {
+                calendarScene(primaryStage, year, month + 1);
+            }
+
+        });
+        BorderPane.setAlignment(rightButton, Pos.CENTER);
+
+        Image leftButtonImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/main/java/IMAGES/angle-double-small-left (calendar).png"))); //LEFT BUTTON
+        ImageView leftButton = new ImageView(leftButtonImage);
+        leftButton.setFitWidth(70);
+        leftButton.setFitHeight(70);
+        leftButton.setPreserveRatio(true);
+        leftButton.setOnMouseClicked((event) -> {
+            //If it's january
+            if(month == 0){
+                calendarScene(primaryStage, year - 1, 11);
+            } else {
+                calendarScene(primaryStage, year, month - 1);
+            }
+        });
+        BorderPane.setAlignment(leftButton, Pos.CENTER);
+
+
+        top.getChildren().addAll(leftButton, monthLabel, title, plus, rightButton);
         top.setMinHeight((double) WINDOW_HEIGHT /5);
         top.setAlignment(Pos.CENTER);
         top.setHgap((double) WINDOW_WIDTH / 19);
@@ -486,33 +503,36 @@ public class FitnessView extends Application {
         BorderPane subBorderPane = new BorderPane();
         mainBorderPane.setTop(subBorderPane);
 
-        Button backButton = new Button("<"){{
-            setFont(new Font(TOP_LABEL_FONT, TOP_LABEL_SIZE));
-            setAlignment(Pos.TOP_LEFT);
-            getStyleClass().add("back-button");
-            //Back button brings you back to the current month
-            setOnMouseClicked((event) -> {
-                Platform.runLater(() ->calendarScene(primaryStage, CURRENT_YEAR, CURRENT_MONTH));
+        Image backButtonImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/main/java/IMAGES/angle-double-small-left (1).png"))); //BACK BUTTON
+        ImageView backButton = new ImageView(backButtonImage);
 
-            });
-        }};
+        backButton.setOnMouseClicked((event -> Platform.runLater(() ->calendarScene(primaryStage, CURRENT_YEAR, CURRENT_MONTH))));
+        backButton.setPreserveRatio(true);
+        backButton.setFitWidth(70);
+        backButton.setFitHeight(70);
 
         subBorderPane.setLeft(backButton);
+        BorderPane.setAlignment(subBorderPane.getLeft(), Pos.CENTER);
 
         Label currentGoalsLabel = new Label("Current Goals:"){{
             setFont(new Font(TOP_LABEL_FONT, TOP_LABEL_SIZE));
-            setAlignment(Pos.CENTER);
             getStyleClass().add("goal-top-section-label");
         }};
+
+        //SO EVERYTHING IS ALIGNED
+        Button placeHolder = new Button("");
+        placeHolder.setPrefWidth(70);
+        subBorderPane.setRight(placeHolder);
+        placeHolder.setVisible(false);
+
+        HBox.setMargin(backButton, new Insets(0, 50, 0, 0));
 
         subBorderPane.setCenter(currentGoalsLabel);
         BorderPane.setAlignment(subBorderPane.getCenter(), Pos.CENTER);
         subBorderPane.getStyleClass().add("goal-top-section");
 
-        subBorderPane.setRight(new Button(""){{
-            setFont(new Font(TOP_LABEL_FONT, TOP_LABEL_SIZE));
-            setVisible(false);
-        }});
+
+
 
         HBox bottomBox = new HBox();
         mainBorderPane.setBottom(bottomBox);
@@ -602,19 +622,26 @@ public class FitnessView extends Application {
                 if (cGoal.next()){
                     VBox consistencyCard = new VBox();
 
-                    Label consistencyHeader = new Label("CONSISTENCY GOAL");
-                    VBox.setMargin(consistencyHeader,new Insets(3, 0, 20, 0));
-                    consistencyHeader.getStyleClass().add("card-header");
+                    // Load the image
+                    Image image = new Image(getClass().getResourceAsStream("/main/java/IMAGES/calendar-clock.png")); //Calendar image
+
+                    // Create an ImageView to display the image
+                    ImageView imageView = new ImageView(image);
+                    imageView.setPreserveRatio(true);
+
+                    VBox.setMargin(imageView,new Insets(3, 0, 30, 0));
+                    imageView.getStyleClass().add("card-header");
 
                     Label currentConsistencyGoal = new Label("I want to workout " + cGoal.getInt(1) + " times a week.");
                     currentConsistencyGoal.getStyleClass().add("card-goal");
+                    currentConsistencyGoal.setTextAlignment(TextAlignment.CENTER);
                     currentConsistencyGoal.setWrapText(true);
 
                     Label progressLabel = new Label ("Progress: " + progress + "/52");
                     progressLabel.getStyleClass().add("card-progress");
 
                     consistencyCard.getStyleClass().add("card");
-                    consistencyCard.getChildren().addAll(consistencyHeader, currentConsistencyGoal, progressLabel);
+                    consistencyCard.getChildren().addAll(imageView, currentConsistencyGoal, progressLabel);
                     consistencyCard.setMaxWidth((double) WINDOW_WIDTH /3);
                     consistencyCard.setPadding(new Insets(10));
 
@@ -1137,28 +1164,33 @@ public class FitnessView extends Application {
      * @param primaryStage the primary stage
      * @param date the date (if any)
      */
-    public void makeWorkoutScene(Stage primaryStage, String date, int month, int year){
+    public void makeWorkoutScene(Stage primaryStage, String date, int month, int year)  {
         BorderPane main = new BorderPane();
         //TOP LABELS
         
         BorderPane topBorderPane = new BorderPane();
 
-        //Back label
-        topBorderPane.setTop(new Label("<"){{
-            setFont(new Font(TOP_LABEL_FONT, TOP_LABEL_SIZE));
-            setAlignment(Pos.TOP_LEFT);
-            getStyleClass().add("back-button");
-            //Back button brings you back to the current month
-            setOnMouseClicked((event) -> {
-                //If the user didn't load a date, go back to today's month
-                if (date == null){
-                    Platform.runLater(() -> calendarScene(primaryStage, CURRENT_YEAR, CURRENT_MONTH));
-                } else {
-                    calendarScene(primaryStage, year, month);
-                }
-            });
-        }});
-        topBorderPane.getStyleClass().add("top-pane");
+
+        Image backButtonImage = new Image(getClass().getResourceAsStream("/main/java/IMAGES/angle-double-small-left (workout).png")); //BACK BUTTON
+        ImageView backButton = new ImageView(backButtonImage);
+        backButton.getStyleClass().add("back-button");
+
+        backButton.setOnMouseClicked((event -> Platform.runLater(() ->calendarScene(primaryStage, CURRENT_YEAR, CURRENT_MONTH))));
+        backButton.setPreserveRatio(true);
+        backButton.setFitWidth(70);
+        backButton.setFitHeight(70);
+        //Back button brings you back to the current month
+        backButton.setOnMouseClicked((event) -> {
+            //If the user didn't load a date, go back to today's month
+            if (date == null){
+                Platform.runLater(() -> calendarScene(primaryStage, CURRENT_YEAR, CURRENT_MONTH));
+            } else {
+                calendarScene(primaryStage, year, month);
+            }
+        });
+        topBorderPane.setLeft(backButton);
+        BorderPane.setAlignment(topBorderPane.getLeft(), Pos.CENTER);
+
 
         //Title and Date
         TextField titleTextField = new TextField(){{
@@ -1192,13 +1224,15 @@ public class FitnessView extends Application {
             throw new RuntimeException(e);
         }
 
-        topBorderPane.setBottom(new HBox(){{
+        topBorderPane.setCenter(new HBox(){{
             setAlignment(Pos.CENTER);
             setMinHeight((double) WINDOW_HEIGHT /7);
             getChildren().addAll(titleTextField, dateTextField);
-            getStyleClass().add("workout-hbox");
         }});
+
         main.setTop(topBorderPane);
+        BorderPane.setAlignment(topBorderPane.getCenter(), Pos.CENTER);
+        topBorderPane.getStyleClass().add("workout-hbox");
 
         //EXERCISE GRID PANE
         GridPane exerciseGridPane = new GridPane();

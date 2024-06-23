@@ -148,6 +148,7 @@ GLOBAL VARIABLES
 
 .workout-hbox {
     -fx-background-color: black;
+    -fx-padding: 20px;
 }
 
 .bottom-exercise-pane {
@@ -372,46 +373,46 @@ GLOBAL VARIABLES
 /*CURRENT GOALS*/
 
 .current-goals-container {
-    -fx-background-color: #121212;
+    -fx-background-color: #0f172a;
 }
 
 .card {
     -fx-font-size: 20px;
     -fx-border-width: 1px;
     -fx-border-style: solid;
-    -fx-border-color: rgba(245, 245, 245, 0.4);
-    -fx-background-color: #212121;
+    -fx-border-color: #1e293b;
+    -fx-background-color: #1e293b;
     -fx-background-radius: 7px;
     -fx-border-radius: 7px;
     -fx-font-family: 'Poppins';
 }
 
 .card:focused, .card:hover {
-    -fx-background-color: #2a2a2a;
+    -fx-background-color: #253248;
 }
 
 .card-goal {
-    -fx-text-alignment: center;
-    -fx-padding: 5px;
-    -fx-text-fill: rgba(245, 245, 245, 0.9);
+    -fx-padding: 3px;
+    -fx-text-fill: #ffffff;
 }
 
 .card-progress {
     -fx-text-alignment: center;
-    -fx-text-fill: rgba(245, 245, 245, 0.9);
-    -fx-font-weight: bold;
-    -fx-padding: 5px;
+    -fx-text-fill: #909fb4;
+    /*-fx-font-weight: bold;*/
+    -fx-font-style: italic;
+    -fx-padding: 3px;
 }
 
 .card-header {
-    -fx-text-fill: whitesmoke;
-    -fx-font-weight: bold;
-    -fx-font-size: 16px;
     -fx-padding: 20px;
     -fx-border-width: 2px;
     -fx-border-style: solid;
     -fx-border-color: #5A02B8;
-    -fx-border-radius: 25px;
+    -fx-border-radius: 250px;
+
+    -fx-background-color: #0f172a;
+    -fx-background-radius: 5px;
 }
 
 
