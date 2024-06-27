@@ -13,6 +13,7 @@ import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
+import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
@@ -99,12 +100,35 @@ public class FitnessView extends Application {
         CURRENT_MONTH = calendar.get(Calendar.MONTH);
         calendarScene(primaryStage, CURRENT_YEAR, CURRENT_MONTH);
         primaryStage.setTitle("MY FITNESS CALENDAR");
-        primaryStage.setWidth(WINDOW_WIDTH);
-        primaryStage.setHeight(WINDOW_HEIGHT);
-        primaryStage.setResizable(true);
+        primaryStage.setWidth(1920);
+        primaryStage.setHeight(1080);
+        primaryStage.setMaximized(true);
+//        primaryStage.setResizable(true);
         primaryStage.show();
     }
 
+    /**
+     * Creates an arrow button given a URL.
+     * @param url URL to the arrow image.
+     * @return ImageView
+     */
+    private ImageView createArrowButton (String url){
+        Image rightButtonImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream(url))); //RIGHT BUTTON
+        ImageView rightButton = new ImageView(rightButtonImage);
+
+        // Create a color adjustment effect
+        ColorAdjust colorAdjust = new ColorAdjust();
+        colorAdjust.setBrightness(0.2);
+
+        // Apply hover effect using setOnMouseEntered and setOnMouseExited
+        rightButton.setOnMouseEntered(event -> rightButton.setEffect(colorAdjust));
+        rightButton.setOnMouseExited(event -> rightButton.setEffect(null));
+        rightButton.setFitWidth(70);
+        rightButton.setFitHeight(70);
+        rightButton.setPreserveRatio(true);
+        BorderPane.setAlignment(rightButton, Pos.CENTER);
+        return rightButton;
+    }
     /**
      * Creates the main calendar scene
      * @param primaryStage the primary scene
@@ -142,11 +166,6 @@ public class FitnessView extends Application {
         manageGoals.setOnAction((event -> makeGoalsScene(primaryStage)));
         progress.setOnAction((event -> makeProgressScene(primaryStage)));
 
-//        Label plus = new Label("+"){{
-//            setFont(new Font(TOP_LABEL_FONT, TOP_LABEL_SIZE));
-//            getStyleClass().add("top-label-text");
-//            setOnMouseClicked((event) -> contextMenu.show(this, 800, 150));
-//        }};
 
         Image plusImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/main/java/IMAGES/plus-small.png"))); //PLUS BUTTON
         ImageView plus = new ImageView(plusImage);
@@ -161,11 +180,8 @@ public class FitnessView extends Application {
             getStyleClass().add("top-label-text");
         }};
 
-        Image rightButtonImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/main/java/IMAGES/angle-double-small-right (calendar).png"))); //RIGHT BUTTON
-        ImageView rightButton = new ImageView(rightButtonImage);
-        rightButton.setFitWidth(70);
-        rightButton.setFitHeight(70);
-        rightButton.setPreserveRatio(true);
+        ImageView rightButton = createArrowButton("/main/java/IMAGES/angle-double-small-right (calendar).png"); //RIGHT BUTTON
+
         rightButton.setOnMouseClicked((event) -> {
 //                //If it's the december
             if (month + 1 == 12){
@@ -175,13 +191,9 @@ public class FitnessView extends Application {
             }
 
         });
-        BorderPane.setAlignment(rightButton, Pos.CENTER);
 
-        Image leftButtonImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/main/java/IMAGES/angle-double-small-left (calendar).png"))); //LEFT BUTTON
-        ImageView leftButton = new ImageView(leftButtonImage);
-        leftButton.setFitWidth(70);
-        leftButton.setFitHeight(70);
-        leftButton.setPreserveRatio(true);
+        ImageView leftButton = createArrowButton("/main/java/IMAGES/angle-double-small-left (calendar).png"); //LEFT BUTTON
+
         leftButton.setOnMouseClicked((event) -> {
             //If it's january
             if(month == 0){
@@ -190,7 +202,6 @@ public class FitnessView extends Application {
                 calendarScene(primaryStage, year, month - 1);
             }
         });
-        BorderPane.setAlignment(leftButton, Pos.CENTER);
 
 
         top.getChildren().addAll(leftButton, monthLabel, title, plus, rightButton);
@@ -377,8 +388,6 @@ public class FitnessView extends Application {
 
         try {
             while(results.next()){
-                System.out.println(results.getString(1));
-                System.out.println(results.getDouble(2));
                 data.add(new XYChart.Data<>(results.getString(1), results.getDouble(2)));
             }
         } catch (SQLException e) {
@@ -390,6 +399,28 @@ public class FitnessView extends Application {
 
     private void makeProgressScene (Stage primaryStage) {
         BorderPane mainPane = new BorderPane();
+
+        //The Top Box
+        HBox topBox = new HBox();
+        topBox.getStyleClass().add("progress-top-box");
+        mainPane.setTop(topBox);
+        ImageView backButton = createArrowButton("/main/java/IMAGES/angle-double-small-left (1).png");
+        backButton.setOnMouseClicked((event -> calendarScene(primaryStage, CURRENT_YEAR, CURRENT_MONTH)));
+        topBox.getChildren().add(backButton);
+        Label progressHeader = new Label("Track Your Progress");
+        progressHeader.getStyleClass().add("goal-top-section-label");
+        HBox.setMargin(progressHeader, new Insets(15));
+        topBox.getChildren().add(progressHeader);
+        Button filler = new Button();
+        filler.setVisible(false);
+        filler.setPrefWidth(70);
+        topBox.getChildren().add(filler);
+        topBox.setMinWidth(WINDOW_WIDTH);
+        topBox.setAlignment(Pos.CENTER);
+
+
+
+
         HBox bottomBox = new HBox();
         mainPane.setBottom(bottomBox);
 
@@ -415,28 +446,42 @@ public class FitnessView extends Application {
 
         //Weight graph menu
         ContextMenu weightGraphMenu = new ContextMenu();
-        //Create a gridpane containing some labels and a text field and a submit button
-        //Put the gridpane in the menu item
+        //Create a grid pane containing some labels and a text field and a submit button
+        //Put the grid pane in the menu item
         //Put the menu item in the menu
         GridPane weightGraphGridPane = new GridPane();
+        weightGraphMenu.getStyleClass().add("weight-graph-menu");
+        weightGraphGridPane.getStyleClass().add("weight-graph-grid");
         weightGraphGridPane.add(new Label("Choose Exercise:"), 0, 0);
 
         //To show options instead of a textfield
         ComboBox<String> comboExercise = new ComboBox<>();
+        GridPane.setMargin(comboExercise, new Insets(5, 10, 5, 10));
+        comboExercise.getStyleClass().add("exercise-selection");
         comboExercise.setEditable(false);
         sql.addComboBoxExercises(comboExercise);
         weightGraphGridPane.add(comboExercise, 1, 0);
 
         weightGraphGridPane.add(new Label("Starting:"), 0,1);
         TextField startingDate = new TextField();
+        startingDate.getStyleClass().add("starting-date-selection");
+        GridPane.setMargin(startingDate, new Insets(5, 10, 5, 10));
         weightGraphGridPane.add(startingDate, 1, 1);
 
         TextField endingDate = new TextField();
+        endingDate.getStyleClass().add("ending-date-selection");
         weightGraphGridPane.add(new Label("Ending:"), 0,2);
+        GridPane.setMargin(endingDate, new Insets(5, 10, 5, 10));
         weightGraphGridPane.add(endingDate, 1, 2);
 
         Button submit = new Button("Submit");
+        submit.getStyleClass().add("weight-progress-submit-button");
+        GridPane.setMargin(submit, new Insets(5,0,0,0));
         weightGraphGridPane.add(submit, 0,3);
+
+        mainPane.setCenter(new HBox(){{
+            getStyleClass().add("progress-center");
+        }});
         //SUBMIT
         submit.setOnAction((event -> {
             //If one of the fields is empty, print an error
@@ -460,6 +505,7 @@ public class FitnessView extends Application {
 
                 lineChart.setTitle(comboExercise.getValue() + " Weight vs Time");
                 lineChart.setAnimated(true);
+                lineChart.getStyleClass().add("progress-line-chart");
                 mainPane.setCenter(lineChart);
 
                 //TOOL TIPS
@@ -477,18 +523,17 @@ public class FitnessView extends Application {
 
         }));
 
-
+        //Choose your weight graph
         CustomMenuItem weightMenuItem = new CustomMenuItem(weightGraphGridPane, false);
         weightGraphMenu.getItems().add(weightMenuItem);
-        item2.setOnAction((event -> weightGraphMenu.show(newGoalButton, 800, 150)));
-
-
-
+        item2.setOnAction((event -> weightGraphMenu.show(newGoalButton, 800, 600)));
 
         graphTypeMenu.getItems().addAll(headerItem, item1, item2);
-        newGoalButton.setOnAction((event) -> graphTypeMenu.show(newGoalButton, 800, 150));
-        primaryStage.setScene(new Scene(mainPane));
-        primaryStage.show();
+        newGoalButton.setOnAction((event) -> graphTypeMenu.show(newGoalButton, 800, 600));
+        Scene mainScene = new Scene(mainPane);
+        mainScene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/main/java/CSS/style.css")).toExternalForm());
+        primaryStage.setScene(mainScene);
+//        primaryStage.show();
     }
 
     /**
@@ -503,16 +548,9 @@ public class FitnessView extends Application {
         BorderPane subBorderPane = new BorderPane();
         mainBorderPane.setTop(subBorderPane);
 
-        Image backButtonImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/main/java/IMAGES/angle-double-small-left (1).png"))); //BACK BUTTON
-        ImageView backButton = new ImageView(backButtonImage);
-
+        ImageView backButton = createArrowButton("/main/java/IMAGES/angle-double-small-left (1).png");
         backButton.setOnMouseClicked((event -> Platform.runLater(() ->calendarScene(primaryStage, CURRENT_YEAR, CURRENT_MONTH))));
-        backButton.setPreserveRatio(true);
-        backButton.setFitWidth(70);
-        backButton.setFitHeight(70);
-
         subBorderPane.setLeft(backButton);
-        BorderPane.setAlignment(subBorderPane.getLeft(), Pos.CENTER);
 
         Label currentGoalsLabel = new Label("Current Goals:"){{
             setFont(new Font(TOP_LABEL_FONT, TOP_LABEL_SIZE));
@@ -1170,15 +1208,10 @@ public class FitnessView extends Application {
         
         BorderPane topBorderPane = new BorderPane();
 
-
-        Image backButtonImage = new Image(getClass().getResourceAsStream("/main/java/IMAGES/angle-double-small-left (workout).png")); //BACK BUTTON
-        ImageView backButton = new ImageView(backButtonImage);
+        ImageView backButton = createArrowButton("/main/java/IMAGES/angle-double-small-left (workout).png"); //BACK BUTTON
         backButton.getStyleClass().add("back-button");
 
         backButton.setOnMouseClicked((event -> Platform.runLater(() ->calendarScene(primaryStage, CURRENT_YEAR, CURRENT_MONTH))));
-        backButton.setPreserveRatio(true);
-        backButton.setFitWidth(70);
-        backButton.setFitHeight(70);
         //Back button brings you back to the current month
         backButton.setOnMouseClicked((event) -> {
             //If the user didn't load a date, go back to today's month
@@ -1189,8 +1222,6 @@ public class FitnessView extends Application {
             }
         });
         topBorderPane.setLeft(backButton);
-        BorderPane.setAlignment(topBorderPane.getLeft(), Pos.CENTER);
-
 
         //Title and Date
         TextField titleTextField = new TextField(){{

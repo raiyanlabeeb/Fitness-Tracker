@@ -415,6 +415,94 @@ GLOBAL VARIABLES
     -fx-background-radius: 5px;
 }
 
+/*PROGRESS SCENE*/
+
+.progress-top-box {
+    -fx-background-color: black;
+}
+
+.progress-header {
+    -fx-highlight-text-fill: whitesmoke;
+}
+
+.weight-graph-menu {
+    -fx-background-color: black;
+}
+
+.weight-graph-grid, .weight-graph-grid:focused, .weight-graph-grid:hover, .weight-graph-grid:selected {
+    -fx-background-color: black;
+}
+
+.weight-graph-menu .menu-item, .weight-graph-menu .menu-item:hover, .weight-graph-menu .menu-item:focused {
+    -fx-background-color: black; /* Remove background */
+    -fx-text-fill: black;              /* Set text color */
+    -fx-padding: 5px 10px;             /* Adjust padding */
+}
+
+/*.exercise-selection .list-cell, .exercise-selection .list-cell:hover {*/
+/*    -fx-background-color: black;*/
+/*    -fx-highlight-text-fill: whitesmoke;*/
+/*}*/
+
+.exercise-selection {
+    -fx-background-color: black;
+    -fx-border-color: whitesmoke;
+    -fx-border-width: 2px;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+}
+
+.exercise-selection:hover {
+    -fx-background-color: rgba(31, 31, 31, 0.8);
+}
+
+.exercise-selection .list-cell {
+    -fx-background-color: black;
+}
+
+.exercise-selection .list-cell:hover {
+    -fx-background-color: rgba(31, 31, 31, 0.8);
+}
+
+.starting-date-selection, .ending-date-selection {
+    -fx-background-color: black;
+    -fx-border-color: whitesmoke;
+    -fx-border-width: 2px;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+}
+
+.starting-date-selection:hover, .ending-date-selection:hover {
+    -fx-background-color: rgba(31, 31, 31, 0.8);
+}
+
+.weight-progress-submit-button {
+    -fx-background-color: #2d2d2d;
+    -fx-border-style: solid;
+    -fx-border-color: whitesmoke;
+    -fx-border-width: 2px;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+}
+
+.weight-progress-submit-button:hover {
+    -fx-background-color: #4f4f4f;
+}
+
+.progress-center {
+    -fx-background-color: #1e293b;
+}
+
+/*PROGRESS LINE CHART*/
+
+.progress-line-chart {
+    -fx-background-color: #1e293b;
+}
+
+.progress-line-chart .chart-plot-background {
+    -fx-background-color: white;    /* Background color of the plot area */
+}
+
 
 
 
