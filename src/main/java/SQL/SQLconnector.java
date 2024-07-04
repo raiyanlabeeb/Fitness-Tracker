@@ -34,10 +34,34 @@ public class SQLconnector {
             Statement statement = connection.createStatement();
             ResultSet data = statement.executeQuery("SELECT DISTINCT exercise_name FROM exercise");
             while (data.next()) {
+                //We don't want to include exercises that I haven't actually done.
+                Statement statement2 = connection.createStatement();
                 comboBox.getItems().add(data.getString(1));
             }
         } catch (Exception e){
             e.printStackTrace();
+        }
+    }
+
+    /**
+     * Updates all progressive overload stats
+     */
+    public void refresh(){
+        //Automatically do all the set stuff
+        //1.) Loop through every single workout
+        //2.) Call the isProgressiveOverload function for every set
+
+        try {
+            Statement statement = connection.createStatement();
+            //Gives information on every single set of every single exercise
+            ResultSet data = statement.executeQuery("SELECT * FROM exercise\n" +
+                    "ORDER BY workout_date");
+            while (data.next()){
+                //Call the progressive overload function on each
+                isProgressiveOverload(data.getString(1), data.getString(5), data.getInt(2), data.getInt(3), data.getDouble(4));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -119,12 +143,12 @@ public class SQLconnector {
             Statement statement = connection.createStatement();
             //Check and see if there's already an entry in the WORKOUT table for the day
             if (statement.executeQuery("SELECT * FROM workout WHERE workout_date = '" + e_date + "'").next() == false){
-                statement.executeUpdate("INSERT INTO workout VALUES(" + "'" + w_title + "', " + "'" + e_date + "'"+ ")");
+                statement.executeUpdate("INSERT INTO workout (workout_title, workout_date) VALUES(" + "'" + w_title + "', " + "'" + e_date + "'"+ ")");
                 System.out.println("Successful workout entry.");
             }
             //Prevent duplicate entries
             if (statement.executeQuery("SELECT * FROM exercise WHERE exercise_name = '" + e_name + "' AND set_id = " + s_id + " AND workout_date = '" + e_date + "'").next() == false){
-                statement.executeUpdate("INSERT INTO exercise VALUES(" + "'" + e_name + "', " + s_id + "," + re + "," + we + ", '" + e_date + "')");
+                statement.executeUpdate("INSERT INTO exercise (exercise_name, set_id, reps, weight, workout_date) VALUES(" + "'" + e_name + "', " + s_id + "," + re + "," + we + ", '" + e_date + "')");
                 System.out.println("Successful database entry.");
             }
         } catch (SQLException e) {
@@ -246,7 +270,43 @@ public class SQLconnector {
 
         //Returns the data about the most recent time you did the exercise at that set
             if (data.next()){
-                return current_reps > data.getInt(3) || current_weight > data.getDouble(4);
+                boolean value = current_reps > data.getInt(3) || current_weight > data.getDouble(4);
+                if (value) {
+                    //Set the progressive overload in the table to true (1)
+                    Statement statement = connection.createStatement();
+                    statement.executeUpdate("UPDATE exercise\n" +
+                            "SET progressive_overload = 1\n" +
+                            "WHERE exercise_name = '" + e_name + "' AND workout_date = '" + w_date + "' AND set_id = " + current_set);
+                }
+
+                //UPDATE THE TOTAL PROGRESSIVE OVERLOAD IN WORKOUT TABLE
+                // Total workout percentage = Num of sets progressively overloaded / num total sets
+
+                Statement statement = connection.createStatement();
+                //Returns the total number of sets done in the workout
+                ResultSet data1 = statement.executeQuery("SELECT COUNT(set_id) FROM exercise\n" +
+                        "WHERE workout_date = '" + w_date + "'");
+                int total_sets = 1; //So we don't deal with divide by 0
+                if (data1.next()){
+                    total_sets = data1.getInt(1);
+                }
+
+                Statement statement1 = connection.createStatement();
+                //Returns the total number of progressively overloaded sets in the workout
+                ResultSet data2 = statement1.executeQuery("SELECT COUNT(set_id) FROM exercise\n" +
+                        "WHERE workout_date = '" + w_date + "' AND progressive_overload = 1");
+                int total_overload = 0;
+                if (data2.next()){
+                    total_overload = data2.getInt(1);
+                }
+
+                Statement statement2 = connection.createStatement();
+                //UPDATES THE TOTAL PROGRESSIVE OVERLOAD
+                statement2.executeUpdate("UPDATE workout\n" +
+                        "SET progressive_overload_percent = " + (int) ( (double) total_overload / total_sets * 100) +
+                        " WHERE workout_date = '" + w_date + "'");
+                return value;
+
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);

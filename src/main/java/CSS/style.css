@@ -211,6 +211,7 @@ GLOBAL VARIABLES
     -fx-border-style: solid;
     -fx-border-width: 3px;
     -fx-border-insets: 10px;
+    -fx-background-insets: 10px;
     -fx-border-color: whitesmoke;
     -fx-background-radius: 17px;
 }
@@ -476,16 +477,16 @@ GLOBAL VARIABLES
     -fx-background-color: rgba(31, 31, 31, 0.8);
 }
 
-.weight-progress-submit-button {
+.submit-button {
     -fx-background-color: #2d2d2d;
     -fx-border-style: solid;
     -fx-border-color: whitesmoke;
     -fx-border-width: 2px;
-    -fx-border-radius: 5px;
-    -fx-background-radius: 5px;
+    -fx-border-radius: 15px;
+    -fx-background-radius: 15px;
 }
 
-.weight-progress-submit-button:hover {
+.submit-button:hover {
     -fx-background-color: #4f4f4f;
 }
 
@@ -500,10 +501,64 @@ GLOBAL VARIABLES
 }
 
 .progress-line-chart .chart-plot-background {
-    -fx-background-color: white;    /* Background color of the plot area */
+    -fx-background-color: #1e293b;    /* Background color of the plot area */
 }
 
+.progress-line-chart .chart-horizontal-grid-lines, .progress-line-chart .chart-vertical-grid-lines, .progress-line-chart .chart-horizontal-minor-grid-lines {
+    -fx-stroke: rgba(211, 211, 211, 0.15);          /* Color of the grid lines */
+    /* Width of the grid lines */
+    -fx-stroke-dash-array: 2 2;
+}
 
+.y-axis, .x-axis {
+    -fx-stroke: whitesmoke;
+}
+
+/* Style the chart title */
+.progress-line-chart .chart-title {
+    -fx-font-size: 20px;        /* Font size of the chart title */
+    -fx-font-family: 'Poppins';
+    -fx-font-weight: bold;      /* Font weight of the chart title */
+    -fx-underline: true;        /* Underline the chart title */
+    -fx-padding: 10;            /* Padding around the chart title */
+    -fx-alignment: center;      /* Center align the chart title */
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 5, 5, 3, 0);
+}
+
+.progress-line-chart .axis-label {
+    -fx-font-size: 14px;        /* Font size of the axis label */
+    -fx-font-family: 'Poppins';
+    -fx-padding: 10;
+    -fx-font-weight: bold;
+    -fx-alignment: center;
+}
+
+/* Style the axes tick labels */
+.progress-line-chart .axis{
+    -fx-tick-label-font-size: 12px;        /* Font size of the tick labels */
+    -fx-font-family: 'Poppins';
+    -fx-tick-label-fill: whitesmoke;
+}
+
+/* Style the data series lines */
+.progress-line-chart .chart-series-line {
+    -fx-stroke: #5A02B8; /* Sky blue line color */
+    -fx-stroke-width: 5px; /* Line width */
+}
+
+/* Style the data points */
+.chart-line-symbol {
+    -fx-background-color: #FDE9FF, white; /* Orange fill color with white outline */
+    -fx-background-radius: 5px; /* Rounded corners */
+    -fx-padding: 5px; /* Size of the data points */
+}
+
+.tooltip {
+    -fx-font-size: 14px;
+    -fx-font-family: 'Poppins';
+    -fx-padding: 5px;
+    -fx-font-style: italic;
+}
 
 
 

@@ -216,25 +216,7 @@ public class FitnessView extends Application {
 
         for (int i = 0; i < 7; i++){
             //ADD THE WEEK LABELS
-            Label l = new Label();
-            if (i == 0 || i == 6){
-                l.setText("S");
-            }
-            else if (i == 1){
-                l.setText("M");
-            }
-            else if (i == 2 || i == 4){
-                l.setText("T");
-            }
-            else if (i == 3){
-                l.setText("W");
-            }
-            else if (i == 5){
-                l.setText("F");
-            }
-            l.setPrefSize((double) WINDOW_WIDTH /10, (double) WINDOW_HEIGHT /20);
-            l.setFont(new Font(TOP_LABEL_FONT, 10));
-            l.setAlignment(Pos.CENTER);
+            Label l = getLabel(i);
             l.getStyleClass().add("week-label");
             calendarGrid.add(l, i, 0);
         }
@@ -372,8 +354,36 @@ public class FitnessView extends Application {
 
 
         Scene mainScene = new Scene(main);
-        mainScene.getStylesheets().add(getClass().getResource("/main/java/CSS/style.css").toExternalForm());
+        mainScene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/main/java/CSS/style.css")).toExternalForm());
         primaryStage.setScene(mainScene);
+    }
+
+    /**
+     * Calendar Scene helper function
+     * @param i i
+     * @return label
+     */
+    private static Label getLabel(int i) {
+        Label l = new Label();
+        if (i == 0 || i == 6){
+            l.setText("S");
+        }
+        else if (i == 1){
+            l.setText("M");
+        }
+        else if (i == 2 || i == 4){
+            l.setText("T");
+        }
+        else if (i == 3){
+            l.setText("W");
+        }
+        else {
+            l.setText("F");
+        }
+        l.setPrefSize((double) WINDOW_WIDTH /10, (double) WINDOW_HEIGHT /20);
+        l.setFont(new Font(TOP_LABEL_FONT, 10));
+        l.setAlignment(Pos.CENTER);
+        return l;
     }
 
     /**
@@ -391,59 +401,19 @@ public class FitnessView extends Application {
                 data.add(new XYChart.Data<>(results.getString(1), results.getDouble(2)));
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
 
         return data;
     }
 
-    private void makeProgressScene (Stage primaryStage) {
-        BorderPane mainPane = new BorderPane();
-
-        //The Top Box
-        HBox topBox = new HBox();
-        topBox.getStyleClass().add("progress-top-box");
-        mainPane.setTop(topBox);
-        ImageView backButton = createArrowButton("/main/java/IMAGES/angle-double-small-left (1).png");
-        backButton.setOnMouseClicked((event -> calendarScene(primaryStage, CURRENT_YEAR, CURRENT_MONTH)));
-        topBox.getChildren().add(backButton);
-        Label progressHeader = new Label("Track Your Progress");
-        progressHeader.getStyleClass().add("goal-top-section-label");
-        HBox.setMargin(progressHeader, new Insets(15));
-        topBox.getChildren().add(progressHeader);
-        Button filler = new Button();
-        filler.setVisible(false);
-        filler.setPrefWidth(70);
-        topBox.getChildren().add(filler);
-        topBox.setMinWidth(WINDOW_WIDTH);
-        topBox.setAlignment(Pos.CENTER);
-
-
-
-
-        HBox bottomBox = new HBox();
-        mainPane.setBottom(bottomBox);
-
-        Button newGoalButton = new Button("Select Graph Type");
-        newGoalButton.setMinHeight((double) WINDOW_HEIGHT /9);
-        newGoalButton.getStyleClass().add("bottom-workout-button");
-        bottomBox.getChildren().add(newGoalButton);
-        bottomBox.getStyleClass().add("goal-bottom-section");
-        bottomBox.setAlignment(Pos.CENTER);
-
-        //GRAPH TYPE MENU
-        ContextMenu graphTypeMenu = new ContextMenu();
-        graphTypeMenu.getStyleClass().add("context-menu");
-
-        Label headerMenuItem = new Label("Select a graph type");
-        CustomMenuItem headerItem = new CustomMenuItem(headerMenuItem, false);
-        headerItem.getStyleClass().add("category-menu-header");
-
-        MenuItem item1 = new MenuItem("Progressive Overlead");
-        MenuItem item2 = new MenuItem("Weight");
-        item1.getStyleClass().add("category-menu-option");
-        item2.getStyleClass().add("category-menu-option");
-
+    /**
+     * Creates the weightGraph and nodes
+     * @param mainPane main border pane
+     * @param item2 the "weight" button
+     * @param newGoalButton the "select graph types" button
+     */
+    private void createWeightGraph(BorderPane mainPane, MenuItem item2, Button newGoalButton){
         //Weight graph menu
         ContextMenu weightGraphMenu = new ContextMenu();
         //Create a grid pane containing some labels and a text field and a submit button
@@ -475,7 +445,7 @@ public class FitnessView extends Application {
         weightGraphGridPane.add(endingDate, 1, 2);
 
         Button submit = new Button("Submit");
-        submit.getStyleClass().add("weight-progress-submit-button");
+        submit.getStyleClass().add("submit-button");
         GridPane.setMargin(submit, new Insets(5,0,0,0));
         weightGraphGridPane.add(submit, 0,3);
 
@@ -489,16 +459,19 @@ public class FitnessView extends Application {
                 System.out.println("GOOFY");
             } else {
                 weightGraphMenu.hide(); //Close the menu
-
-                //CREATE A LINECHART
                 List<LineChart.Data<String, Number>> data;
                 data = populateWeightGraph(comboExercise.getValue(), startingDate.getText(), endingDate.getText());
                 var xAxis = new CategoryAxis();
+                xAxis.getStyleClass().add("x-axis");
                 xAxis.setLabel("DATE");
                 xAxis.setTickLabelRotation(70);
                 //The min and max weights
                 int[] minMaxPoints = sql.getMinMaxWeight(comboExercise.getValue(), startingDate.getText(), endingDate.getText());
                 var yAxis = new NumberAxis("WEIGHT", minMaxPoints[0] - 10, minMaxPoints[1] + 10, 10);
+                yAxis.getStyleClass().add("y-axis");
+                yAxis.setTickMarkVisible(true);
+                yAxis.setMinorTickVisible(true);
+                yAxis.setMinorTickCount(4);
 
                 XYChart.Series<String, Number> series = new XYChart.Series<>(FXCollections.observableList(data));
                 LineChart<String, Number> lineChart = new LineChart<>(xAxis, yAxis, FXCollections.singletonObservableList(series));
@@ -506,34 +479,91 @@ public class FitnessView extends Application {
                 lineChart.setTitle(comboExercise.getValue() + " Weight vs Time");
                 lineChart.setAnimated(true);
                 lineChart.getStyleClass().add("progress-line-chart");
+                lineChart.setLegendVisible(false);
                 mainPane.setCenter(lineChart);
+                BorderPane.setAlignment(lineChart, Pos.CENTER);
+                lineChart.setPadding(new Insets(10));
 
                 //TOOL TIPS
                 for (XYChart.Data<?,?> dataPoint : series.getData()) {
                     Tooltip tooltip = new Tooltip(
                             "Date: " + dataPoint.getXValue() + "\nWeight: " + dataPoint.getYValue()
                     );
+                    tooltip.getStyleClass().add("tool-tip");
                     tooltip.setShowDelay(Duration.ZERO); //Set the duration to 0
                     Tooltip.install(dataPoint.getNode(), tooltip);
                     // Make the node visible when hovering
                     dataPoint.getNode().setOnMouseEntered(event2 -> dataPoint.getNode().setStyle("-fx-background-color: blue, white; -fx-background-insets: 0, 2;"));
                     dataPoint.getNode().setOnMouseExited(event2 -> dataPoint.getNode().setStyle(""));
                 }
-            }
-
-        }));
+            }}));
 
         //Choose your weight graph
         CustomMenuItem weightMenuItem = new CustomMenuItem(weightGraphGridPane, false);
         weightGraphMenu.getItems().add(weightMenuItem);
-        item2.setOnAction((event -> weightGraphMenu.show(newGoalButton, 800, 600)));
+        item2.setOnAction((event -> {
+            weightGraphMenu.show(newGoalButton, 800, 600);
+        }));
+    }
+
+    private void makeProgressScene (Stage primaryStage) {
+        BorderPane mainPane = new BorderPane();
+
+        //The Top Box
+        BorderPane topPane = new BorderPane();
+        topPane.getStyleClass().add("progress-top-box");
+        mainPane.setTop(topPane);
+        ImageView backButton = createArrowButton("/main/java/IMAGES/angle-double-small-left (1).png");
+        backButton.setOnMouseClicked((event -> calendarScene(primaryStage, CURRENT_YEAR, CURRENT_MONTH)));
+        topPane.setLeft(backButton);
+        Label progressHeader = new Label("Track Your Progress");
+        progressHeader.getStyleClass().add("goal-top-section-label");
+        BorderPane.setMargin(progressHeader, new Insets(20));
+        topPane.setRight(new Button(){{ //Filler button to keep centered
+            setVisible(false);
+            setPrefWidth(70);
+        }});
+        BorderPane.setMargin(backButton, new Insets(0,0,0,25));
+        HBox.setMargin(progressHeader, new Insets(25));
+        topPane.setCenter(progressHeader);
+        Button filler = new Button();
+        filler.setVisible(false);
+        filler.setPrefWidth(70);
+        topPane.getChildren().add(filler);
+        topPane.setMinWidth(WINDOW_WIDTH);
+        BorderPane.setAlignment(backButton, Pos.CENTER);
+        BorderPane.setAlignment(progressHeader, Pos.CENTER);
+
+        HBox bottomBox = new HBox();
+        mainPane.setBottom(bottomBox);
+
+        Button newGoalButton = new Button("Select Graph Type");
+        newGoalButton.setMinHeight((double) WINDOW_HEIGHT /9);
+        newGoalButton.getStyleClass().add("bottom-workout-button");
+        bottomBox.getChildren().add(newGoalButton);
+        bottomBox.getStyleClass().add("goal-bottom-section");
+        bottomBox.setAlignment(Pos.CENTER);
+
+        //GRAPH TYPE MENU
+        ContextMenu graphTypeMenu = new ContextMenu();
+        graphTypeMenu.getStyleClass().add("context-menu");
+
+        Label headerMenuItem = new Label("Select a graph type");
+        CustomMenuItem headerItem = new CustomMenuItem(headerMenuItem, false);
+        headerItem.getStyleClass().add("category-menu-header");
+
+        MenuItem item1 = new MenuItem("Progressive Overload");
+        MenuItem item2 = new MenuItem("Weight");
+        item1.getStyleClass().add("category-menu-option");
+        item2.getStyleClass().add("category-menu-option");
+
+        createWeightGraph(mainPane, item2, newGoalButton);
 
         graphTypeMenu.getItems().addAll(headerItem, item1, item2);
         newGoalButton.setOnAction((event) -> graphTypeMenu.show(newGoalButton, 800, 600));
         Scene mainScene = new Scene(mainPane);
         mainScene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/main/java/CSS/style.css")).toExternalForm());
         primaryStage.setScene(mainScene);
-//        primaryStage.show();
     }
 
     /**
@@ -598,7 +628,7 @@ public class FitnessView extends Application {
         item3.getStyleClass().add("category-menu-option");
 
         categoryMenu.getItems().addAll(headerItem, item1, item2,item3);
-        newGoalButton.setOnAction((event -> categoryMenu.show(newGoalButton, 650, 500)));
+        newGoalButton.setOnAction((event -> categoryMenu.show(newGoalButton, 650, 600)));
 
         // Create the form for the context menu
         Label consistencyLabel = new Label("I want to workout");
@@ -634,19 +664,20 @@ public class FitnessView extends Application {
             contextMenu.hide();
             consistencyField.clear();
         }));
+        submitButton.getStyleClass().add("submit-button");
 
         submitItem.getStyleClass().add("consistency-label");
 
         contextMenu.getItems().addAll(formItem, submitItem);
 
-        item1.setOnAction((event -> contextMenu.show(newGoalButton, 500,500)));
+        item1.setOnAction((event -> contextMenu.show(newGoalButton, 650,600)));
 
         //UPDATES CURRENT GOALS
         updateGoals(mainBorderPane);
 
 
         Scene mainScene = new Scene(mainBorderPane);
-        mainScene.getStylesheets().add(getClass().getResource("/main/java/CSS/style.css").toExternalForm());
+        mainScene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/main/java/CSS/style.css")).toExternalForm());
         primaryStage.setScene(mainScene);
     }
 
@@ -661,7 +692,7 @@ public class FitnessView extends Application {
                     VBox consistencyCard = new VBox();
 
                     // Load the image
-                    Image image = new Image(getClass().getResourceAsStream("/main/java/IMAGES/calendar-clock.png")); //Calendar image
+                    Image image = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/main/java/IMAGES/calendar-clock.png"))); //Calendar image
 
                     // Create an ImageView to display the image
                     ImageView imageView = new ImageView(image);
@@ -784,35 +815,7 @@ public class FitnessView extends Application {
 
             grid.add(repTextField, 2, numRows);
 
-            TextField weightTextField = new TextField()
-            {{
-                setPromptText("Weight");
-                setMinHeight(EXERCISE_BUTTON_HEIGHT);
-                setPrefWidth((double) WINDOW_WIDTH /4);
-                setAlignment(Pos.CENTER);
-                setFont(new Font(EXERCISE_FONT_SIZE));
-                getStyleClass().add("exercise-button");
-
-                //Adds to SQL
-                focusedProperty().addListener((observable, oldValue, newValue) -> {
-                    if (!newValue) { // When the TextField loses focus
-                        weight_string.set(this.getText());
-                        //ADD TO SQL DATABASE
-                        if (rep_string.get() != null && exercise_field!=null && set_string.get() != null && date.getText() != null && title.getText() != null) {
-                            //SET TO GREEN IF PROGRESSIVE OVERLOAD
-                            if (sql.isProgressiveOverload(exercise_field.getText(), date.getText(), Integer.parseInt(set_string.get()), Integer.parseInt(rep_string.get()), Double.parseDouble(weight_string.get()))){
-                                progressiveOverload.set(true);
-                                if (progressiveOverload.get()) {
-                                    setTextField.getStyleClass().add("overload-style");
-                                    getStyleClass().add("overload-style");
-                                    repTextField.getStyleClass().add("overload-style");
-                                }
-                            }
-                            sql.addToExercise(title.getText(), exercise_field.getText(), Integer.parseInt(set_string.get()), date.getText(), Integer.parseInt(rep_string.get()), Double.parseDouble(weight_string.get()));
-                        }
-                    }
-                });
-            }};
+            TextField weightTextField = getWeightTextField(weight_string, rep_string, set_string, date, title, progressiveOverload, setTextField, repTextField);
 
             grid.add(weightTextField, 3, numRows);
             grid.setAlignment(Pos.TOP_CENTER);
@@ -977,7 +980,26 @@ public class FitnessView extends Application {
         }};
         grid.add(repTextField, 2, GridPane.getRowIndex(exercise_field) + rowSpan);
 
-        TextField weightTextField = new TextField()
+        TextField weightTextField = getWeightTextField(weight_string, rep_string, set_string, date, title, progressiveOverload, setTextField, repTextField);
+
+        detectTab(weightTextField, grid, date, title);
+        grid.add(weightTextField, 3, GridPane.getRowIndex(exercise_field) + rowSpan);
+    }
+
+    /**
+     * Helper function for workoutScene
+     * @param weight_string weight
+     * @param rep_string reps
+     * @param set_string sets
+     * @param date dateTextField
+     * @param title titleTextField
+     * @param progressiveOverload true or false
+     * @param setTextField setTextField
+     * @param repTextField repTextField
+     * @return TextField
+     */
+    private TextField getWeightTextField(AtomicReference<String> weight_string, AtomicReference<String> rep_string, AtomicReference<String> set_string, TextField date, TextField title, AtomicBoolean progressiveOverload, TextField setTextField, TextField repTextField){
+        return new TextField()
         {{
             setPromptText("Weight");
             setMinHeight(EXERCISE_BUTTON_HEIGHT);
@@ -1004,9 +1026,6 @@ public class FitnessView extends Application {
                 }
             });
         }};
-
-        detectTab(weightTextField, grid, date, title);
-        grid.add(weightTextField, 3, GridPane.getRowIndex(exercise_field) + rowSpan);
     }
 
     /**
@@ -1015,7 +1034,7 @@ public class FitnessView extends Application {
      */
     public void createDialog(String message){
         Dialog<String> dialog = new Dialog<>();
-        dialog.getDialogPane().getStylesheets().add(getClass().getResource("/main/java/CSS/style.css").toExternalForm());
+        dialog.getDialogPane().getStylesheets().add(Objects.requireNonNull(getClass().getResource("/main/java/CSS/style.css")).toExternalForm());
         dialog.getDialogPane().getStyleClass().add("dialog");
         dialog.setTitle("Error");
         dialog.setHeaderText(message);
@@ -1163,7 +1182,7 @@ public class FitnessView extends Application {
          //The row index
          int rowIndex = GridPane.getRowIndex(exercise_field);
          //Row span
-        int rowSpan = 1;
+        int rowSpan;
          if (GridPane.getRowSpan(exercise_field) != null && GridPane.getRowSpan(exercise_field) != 1){
             rowSpan = GridPane.getRowSpan(exercise_field);
             //If the rowspan is not detected, this will change nothing
@@ -1370,7 +1389,7 @@ public class FitnessView extends Application {
             }
         }));
 
-        workout.getStylesheets().add(getClass().getResource("/main/java/CSS/style.css").toExternalForm());
+        workout.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/main/java/CSS/style.css")).toExternalForm());
         primaryStage.setScene(workout);
     }
 
