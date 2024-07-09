@@ -79,4 +79,16 @@ public class HelperClass extends Application {
         BorderPane.setAlignment(rightButton, Pos.CENTER);
         return rightButton;
     }
+
+    /**
+     * Creates and returns a close button
+     * @param url url of image
+     * @return imageview
+     */
+    public static ImageView createXButton(String url){
+        ImageView closeButton = HelperClass.createArrowButton("/main/java/IMAGES/circle-xmark.png");
+        closeButton.setFitHeight(30);
+        closeButton.setFitWidth(30);
+        return closeButton;
+    }
 }

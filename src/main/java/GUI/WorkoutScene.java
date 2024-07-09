@@ -26,7 +26,7 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static GUI.FitnessView.*;
+import static GUI.CalendarScene.*;
 
 public class WorkoutScene extends Application{
 
