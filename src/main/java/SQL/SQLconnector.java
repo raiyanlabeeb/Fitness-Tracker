@@ -26,6 +26,33 @@ public class SQLconnector {
     }
 
     /**
+     * Get the max reps done on a set given a date and an exercise
+     * @param date date
+     * @param exercise_name exercise
+     * @return max reps
+     */
+    public int getMaxReps(String date, String exercise_name){
+        try {
+            Statement statement = connection.createStatement();
+            //Returns the max reps done
+            ResultSet data = statement.executeQuery("SELECT MIN(reps) AS min_reps\n" +
+                    "FROM exercise\n" +
+                    "WHERE weight = (\n" +
+                    "    SELECT MAX(weight)\n" +
+                    "    FROM exercise\n" +
+                    "    WHERE exercise_name = '" + exercise_name + "' AND workout_date = '" + date + "'\n" +
+                    ")\n" +
+                    "AND workout_date = '" + date + "'\n" +
+                    "GROUP BY exercise_name;");
+            if (data.next()) {
+                return data.getInt(1);
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return 0;
+    }
+    /**
      * Adds exercise names to comboBox
      * @param comboBox the combobox to add
      */
@@ -94,6 +121,31 @@ public class SQLconnector {
     }
 
     /**
+     * Get the minimum and maximum overload for a certain exercise from start to end date
+     * @param exercise exercise name
+     * @param start start date
+     * @param end end date
+     * @return int
+     */
+    public int[] getMinMaxOverload(String exercise, String start, String end){
+        int[] result = new int[2];
+        try {
+            Statement statement = connection.createStatement();
+            if (!exercise.equals("All Exercises")) {
+                result[0] = 0;
+                result[1] = 1;
+            } else {
+                result[0] = 0;
+                result[1] = 100;
+            }
+            return result;
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
      * Returns a table of the weight's done by a certain exercise on every date.
      * @param exercise the exercise name
      * @param start the start date
@@ -114,7 +166,7 @@ public class SQLconnector {
                     "GROUP BY \n" +
                     "    workout_date\n" +
                     "ORDER BY workout_date");
-            if (data.next()){
+            if (data != null){
                 return data;
             }
         } catch (Exception e){
@@ -188,6 +240,9 @@ public class SQLconnector {
         String month = fields[0];
         String day = fields[1];
         String year = fields[2];
+        if (year.length() < 4){
+            year = "20" + year;
+        }
         if (fields[0].length() == 1) {
             month = "0" + fields[0];
         }
@@ -430,6 +485,50 @@ public class SQLconnector {
             throw new RuntimeException(e);
         }
     }
+
+    /**
+     * Is there a weight goal?
+     * @return boolean
+     */
+    public boolean hasWeightGoal(){
+        try {
+            return connection.createStatement().executeQuery("SELECT * FROM weight_goal").next();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Helps with weight goal. Returns the highest weight you've ever done given an exercise name
+     * @param exerciseName exercise name
+     * @return the highest weight done
+     */
+    public int getHighestWeight(String exerciseName){
+        try {
+            Statement statement = connection.createStatement();
+            ResultSet data = statement.executeQuery("SELECT MAX(weight) FROM exercise WHERE exercise_name = '" + exerciseName + "'");
+            if (data.next()){return data.getInt(1);}
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return 0;
+    }
+    /**
+     * Returns all weight goals
+     * @return
+     */
+    public ResultSet getWeightGoals(){
+        try {
+            Statement statement = connection.createStatement();
+            ResultSet data = statement.executeQuery("SELECT * FROM weight_goal");
+            if (data.next()){
+                return data;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return null;
+    }
     public boolean workoutExists(String date){
         try {
             Statement statement = connection.createStatement();
@@ -458,5 +557,75 @@ public class SQLconnector {
             throw new RuntimeException(e);
         }
         return null;
+    }
+
+    public ResultSet getOverloadGraphData(String exercise, String start, String end) {
+        try {
+            Statement statement = connection.createStatement();
+            start = formatDate(start);
+            end = formatDate(end);
+
+            //For progressive overload with a single exercise
+            if (!exercise.equals("All Exercises")) {
+                ResultSet data = statement.executeQuery("SELECT workout_date, AVG(progressive_overload)\n" +
+                        "FROM exercise\n" +
+                        "WHERE exercise_name = '" + exercise + "'\n" +
+                        "AND workout_date >= '" + start + "' AND workout_date <= '" + end + "'" + "\n GROUP BY workout_date");
+                if (data != null) {
+                    return data;
+                }
+            } else {
+                //Total progressive overload
+                ResultSet data = statement.executeQuery("SELECT workout_date, progressive_overload_percent\n" +
+                        "FROM workout\n" +
+                        "WHERE workout_date >= '" + start + "' AND workout_date <= '" + end + "'");
+                if (data != null) {
+                    return data;
+                }
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * Removes the weight goal given an exercise name.
+     * @param exerciseName the exercise name
+     */
+    public void removeWeightGoal(String exerciseName) {
+        try {
+            Statement statement = connection.createStatement();
+            statement.executeUpdate("DELETE FROM weight_goal WHERE exercise_name = '" + exerciseName + "'");
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+        /**
+         * Removes the consistency goal from the database.
+         */
+        public void removeConsistencyGoal(){
+            try {
+                Statement statement = connection.createStatement();
+                statement.executeUpdate("DELETE FROM consistency_goal");
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+
+    }
+
+    /**
+     * Add an weight goal given an exercise name and pound amount
+     * @param exerciseName exercise name
+     * @param pounds pound amount
+     */
+    public void addWeightGoal(String exerciseName, String pounds){
+        try {
+            Statement statement = connection.createStatement();
+            statement.executeUpdate("INSERT INTO weight_goal VALUES(" + "'" + exerciseName + "' , " + pounds + ")");
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

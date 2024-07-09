@@ -2,7 +2,6 @@ package GUI;
 import SQL.SQLconnector;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -329,7 +328,7 @@ public class FitnessView extends Application {
                          actualYear = year;
                      }
                      if (sql.workoutExists(actualMonth + "/" + day + "/" + actualYear)){
-                         b.setText(sql.getWorkoutName(month + 2 + "/" + day + "/" + year));
+                         b.setText(sql.getWorkoutName(actualMonth + "/" + day + "/" + actualYear));
                          b.getStyleClass().add("special-gray-button");
                      } else {
                          b.setText(day + "");
@@ -387,7 +386,7 @@ public class FitnessView extends Application {
     }
 
     /**
-     * Populations the weight graph with points given an exercise name, start and end date
+     * Populates the weight graph with points given an exercise name, start and end date
      * @param exercise exercise name
      * @param start start date
      * @param end end date
@@ -395,6 +394,120 @@ public class FitnessView extends Application {
     private List<XYChart.Data<String, Number>> populateWeightGraph(String exercise, String start, String end){
         List<XYChart.Data<String, Number>> data = new ArrayList<>();
         ResultSet results = sql.getWeightGraphData(exercise, start, end);
+        try {
+            while(results.next()){
+                data.add(new XYChart.Data<>(results.getString(1), results.getDouble(2)));
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+
+        return data;
+    }
+
+    private void createOverloadGraph(BorderPane mainPane, MenuItem overloadButton, Button newGoalButton){
+        //Weight graph menu
+        ContextMenu overloadGraphMenu = new ContextMenu();
+        //Create a grid pane containing some labels and a text field and a submit button
+        //Put the grid pane in the menu item
+        //Put the menu item in the menu
+        GridPane overloadGraphGridPane = new GridPane();
+        overloadGraphMenu.getStyleClass().add("graph-menu");
+        overloadGraphGridPane.getStyleClass().add("graph-grid");
+        overloadGraphGridPane.add(new Label("Choose Exercise:"), 0, 0);
+
+        //To show options instead of a textfield
+        ComboBox<String> comboExercise = new ComboBox<>();
+        GridPane.setMargin(comboExercise, new Insets(5, 10, 5, 10));
+        comboExercise.getStyleClass().add("exercise-selection");
+        comboExercise.setEditable(false);
+        comboExercise.getItems().add("All Exercises");
+        sql.addComboBoxExercises(comboExercise);
+        overloadGraphGridPane.add(comboExercise, 1, 0);
+
+        overloadGraphGridPane.add(new Label("Starting:"), 0,1);
+        TextField startingDate = new TextField();
+        startingDate.getStyleClass().add("starting-date-selection");
+        GridPane.setMargin(startingDate, new Insets(5, 10, 5, 10));
+        overloadGraphGridPane.add(startingDate, 1, 1);
+
+        TextField endingDate = new TextField();
+        endingDate.getStyleClass().add("ending-date-selection");
+        overloadGraphGridPane.add(new Label("Ending:"), 0,2);
+        GridPane.setMargin(endingDate, new Insets(5, 10, 5, 10));
+        overloadGraphGridPane.add(endingDate, 1, 2);
+
+        Button submit = new Button("Submit");
+        submit.getStyleClass().add("submit-button");
+        GridPane.setMargin(submit, new Insets(5,0,0,0));
+        overloadGraphGridPane.add(submit, 0,3);
+
+        mainPane.setCenter(new HBox(){{
+            getStyleClass().add("progress-center");
+        }});
+        //SUBMIT
+        submit.setOnAction((event -> {
+            //If one of the fields is empty, print an error
+            if (comboExercise.getValue() == null || startingDate.getText() == null || endingDate.getText() == null) {
+                System.out.println("GOOFY");
+            } else {
+                overloadGraphMenu.hide(); //Close the menu
+                List<XYChart.Data<String, Number>> data;
+                data = populateOverloadGraph(comboExercise.getValue(), startingDate.getText(), endingDate.getText());
+                var xAxis = new CategoryAxis();
+                xAxis.getStyleClass().add("x-axis");
+                xAxis.setLabel("DATE");
+                xAxis.setTickLabelRotation(70);
+                //The min and max weights
+                int[] minMaxPoints = sql.getMinMaxOverload(comboExercise.getValue(), startingDate.getText(), endingDate.getText());
+                var yAxis = new NumberAxis("OVERLOAD PERCENTAGE", minMaxPoints[0] - 1, minMaxPoints[1] + 1, 10);
+                yAxis.getStyleClass().add("y-axis");
+                yAxis.setTickMarkVisible(true);
+                yAxis.setMinorTickVisible(true);
+                yAxis.setMinorTickCount(4);
+
+                XYChart.Series<String, Number> series = new XYChart.Series<>();
+                series.getData().addAll(data);
+                series.setName("Data");
+                LineChart<String, Number> lineChart = new LineChart<>(xAxis, yAxis);
+
+                XYChart.Series<String, Number> bestFitLine = calculateBestFitLine(series);
+                lineChart.getData().addAll(series, bestFitLine);
+
+                bestFitLine.getNode().getStyleClass().add("best-fit-line");
+                series.getNode().getStyleClass().add("data");
+
+                lineChart.setTitle(comboExercise.getValue() + " Progressive Overload vs Time");
+                lineChart.setAnimated(true);
+                lineChart.getStyleClass().add("progress-line-chart");
+                lineChart.setLegendVisible(false);
+                mainPane.setCenter(lineChart);
+                BorderPane.setAlignment(lineChart, Pos.CENTER);
+                lineChart.setPadding(new Insets(10));
+
+                //TOOL TIPS
+                for (XYChart.Data<?,?> dataPoint : series.getData()) {
+                    Tooltip tooltip = new Tooltip(
+                            "Date: " + dataPoint.getXValue() + "\nOverload Percentage: " + dataPoint.getYValue()
+                    );
+                    tooltip.getStyleClass().add("tool-tip");
+                    tooltip.setShowDelay(Duration.ZERO); //Set the duration to 0
+                    Tooltip.install(dataPoint.getNode(), tooltip);
+                    // Make the node visible when hovering
+                    dataPoint.getNode().setOnMouseEntered(event2 -> dataPoint.getNode().setStyle("-fx-background-color: blue, white; -fx-background-insets: 0, 2;"));
+                    dataPoint.getNode().setOnMouseExited(event2 -> dataPoint.getNode().setStyle(""));
+                }
+            }}));
+
+        //Choose your weight graph
+        CustomMenuItem weightMenuItem = new CustomMenuItem(overloadGraphGridPane, false);
+        overloadGraphMenu.getItems().add(weightMenuItem);
+        overloadButton.setOnAction((event -> overloadGraphMenu.show(newGoalButton, 800, 600)));
+    }
+
+    private List<XYChart.Data<String, Number>> populateOverloadGraph(String exercise, String start, String end) {
+        List<XYChart.Data<String, Number>> data = new ArrayList<>();
+        ResultSet results = sql.getOverloadGraphData(exercise, start, end);
 
         try {
             while(results.next()){
@@ -420,8 +533,8 @@ public class FitnessView extends Application {
         //Put the grid pane in the menu item
         //Put the menu item in the menu
         GridPane weightGraphGridPane = new GridPane();
-        weightGraphMenu.getStyleClass().add("weight-graph-menu");
-        weightGraphGridPane.getStyleClass().add("weight-graph-grid");
+        weightGraphMenu.getStyleClass().add("graph-menu");
+        weightGraphGridPane.getStyleClass().add("graph-grid");
         weightGraphGridPane.add(new Label("Choose Exercise:"), 0, 0);
 
         //To show options instead of a textfield
@@ -459,7 +572,7 @@ public class FitnessView extends Application {
                 System.out.println("GOOFY");
             } else {
                 weightGraphMenu.hide(); //Close the menu
-                List<LineChart.Data<String, Number>> data;
+                List<XYChart.Data<String, Number>> data;
                 data = populateWeightGraph(comboExercise.getValue(), startingDate.getText(), endingDate.getText());
                 var xAxis = new CategoryAxis();
                 xAxis.getStyleClass().add("x-axis");
@@ -473,8 +586,16 @@ public class FitnessView extends Application {
                 yAxis.setMinorTickVisible(true);
                 yAxis.setMinorTickCount(4);
 
-                XYChart.Series<String, Number> series = new XYChart.Series<>(FXCollections.observableList(data));
-                LineChart<String, Number> lineChart = new LineChart<>(xAxis, yAxis, FXCollections.singletonObservableList(series));
+                XYChart.Series<String, Number> series = new XYChart.Series<>();
+                LineChart<String, Number> lineChart = new LineChart<>(xAxis, yAxis);
+                series.getData().addAll(data);
+                series.setName("Data");
+
+                XYChart.Series<String, Number> bestFitLine = calculateBestFitLine(series);
+                lineChart.getData().addAll(series, bestFitLine);
+
+                bestFitLine.getNode().getStyleClass().add("best-fit-line");
+                series.getNode().getStyleClass().add("data");
 
                 lineChart.setTitle(comboExercise.getValue() + " Weight vs Time");
                 lineChart.setAnimated(true);
@@ -487,7 +608,7 @@ public class FitnessView extends Application {
                 //TOOL TIPS
                 for (XYChart.Data<?,?> dataPoint : series.getData()) {
                     Tooltip tooltip = new Tooltip(
-                            "Date: " + dataPoint.getXValue() + "\nWeight: " + dataPoint.getYValue()
+                            "Date: " + dataPoint.getXValue() + "\nWeight: " + dataPoint.getYValue() + "\nReps: " + sql.getMaxReps((String) dataPoint.getXValue(), comboExercise.getValue())
                     );
                     tooltip.getStyleClass().add("tool-tip");
                     tooltip.setShowDelay(Duration.ZERO); //Set the duration to 0
@@ -496,14 +617,44 @@ public class FitnessView extends Application {
                     dataPoint.getNode().setOnMouseEntered(event2 -> dataPoint.getNode().setStyle("-fx-background-color: blue, white; -fx-background-insets: 0, 2;"));
                     dataPoint.getNode().setOnMouseExited(event2 -> dataPoint.getNode().setStyle(""));
                 }
+
+                //TOOL TIPS FOR LINE OF BEST FIT
+                for (XYChart.Data<?,?> dataPoint : bestFitLine.getData()) {
+                    Tooltip tooltip = new Tooltip(
+                            "Date: " + dataPoint.getXValue() + "\nWeight: " + dataPoint.getYValue() + "\nReps: " + sql.getMaxReps((String) dataPoint.getXValue(), comboExercise.getValue())
+                    );
+                    tooltip.getStyleClass().add("tool-tip");
+                    tooltip.setShowDelay(Duration.ZERO); //Set the duration to 0
+                    Tooltip.install(dataPoint.getNode(), tooltip);
+                    // Make the node visible when hovering
+                    dataPoint.getNode().setOnMouseEntered(event2 -> dataPoint.getNode().setStyle("-fx-background-color: blue, white; -fx-background-insets: 0, 2;"));
+                    dataPoint.getNode().setOnMouseExited(event2 -> dataPoint.getNode().setStyle(""));
+                }
+
             }}));
 
         //Choose your weight graph
         CustomMenuItem weightMenuItem = new CustomMenuItem(weightGraphGridPane, false);
         weightGraphMenu.getItems().add(weightMenuItem);
-        item2.setOnAction((event -> {
-            weightGraphMenu.show(newGoalButton, 800, 600);
-        }));
+        item2.setOnAction((event -> weightGraphMenu.show(newGoalButton, 800, 600)));
+    }
+
+    /**
+     * Returns a series of the best fit line
+     * @param series
+     * @return
+     */
+    private XYChart.Series<String, Number> calculateBestFitLine(XYChart.Series<String, Number> series) {
+        //To get the line of best fit, place a point at the first and then place a point at the last and connect them
+        XYChart.Series<String, Number> bestFitLine = new XYChart.Series<>();
+        if (series.getData().size() < 2){
+            return bestFitLine;
+        }
+        //Add the first point
+        bestFitLine.getData().add(new XYChart.Data<>(series.getData().getFirst().getXValue(), series.getData().getFirst().getYValue()));
+        bestFitLine.getData().add(new XYChart.Data<>(series.getData().getLast().getXValue(), series.getData().getLast().getYValue()));
+        bestFitLine.setName("Line of Best Fit");
+        return bestFitLine;
     }
 
     private void makeProgressScene (Stage primaryStage) {
@@ -558,6 +709,7 @@ public class FitnessView extends Application {
         item2.getStyleClass().add("category-menu-option");
 
         createWeightGraph(mainPane, item2, newGoalButton);
+        createOverloadGraph(mainPane, item1, newGoalButton);
 
         graphTypeMenu.getItems().addAll(headerItem, item1, item2);
         newGoalButton.setOnAction((event) -> graphTypeMenu.show(newGoalButton, 800, 600));
@@ -599,9 +751,6 @@ public class FitnessView extends Application {
         BorderPane.setAlignment(subBorderPane.getCenter(), Pos.CENTER);
         subBorderPane.getStyleClass().add("goal-top-section");
 
-
-
-
         HBox bottomBox = new HBox();
         mainBorderPane.setBottom(bottomBox);
 
@@ -630,6 +779,80 @@ public class FitnessView extends Application {
         categoryMenu.getItems().addAll(headerItem, item1, item2,item3);
         newGoalButton.setOnAction((event -> categoryMenu.show(newGoalButton, 650, 600)));
 
+        consistencyGoalMenu(mainBorderPane, item1, newGoalButton); // Creates the consistency goal menu
+        weightGoalMenu(mainBorderPane, item2, newGoalButton);
+        //UPDATES CURRENT GOALS
+        updateGoals(mainBorderPane);
+
+
+        Scene mainScene = new Scene(mainBorderPane);
+        mainScene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/main/java/CSS/style.css")).toExternalForm());
+        primaryStage.setScene(mainScene);
+    }
+
+    /**
+     * Creates the weight goal menu
+     * @param mainBorderPane the main border pane
+     * @param weightButton the weight button
+     * @param newGoalButton the goal button
+     */
+    private void weightGoalMenu(BorderPane mainBorderPane, MenuItem weightButton, Button newGoalButton) {
+        // Create the form for the context menu
+        Label weightLabel = new Label("I want to ");
+        ComboBox<String> exerciseNameField = new ComboBox<>();
+        exerciseNameField.setPromptText("Exercise Name");
+        TextField poundsTextField = new TextField();
+        poundsTextField.setAlignment(Pos.CENTER);
+        poundsTextField.getStyleClass().add("consistency-textfield");
+        poundsTextField.setPrefWidth((double) WINDOW_WIDTH / 7);
+        poundsTextField.setPromptText("Weight");
+        sql.addComboBoxExercises(exerciseNameField); // Add all exercises to the combo box
+        exerciseNameField.getStyleClass().add("exercise-selection");
+
+        Label weightLabel2 = new Label("pounds.");
+
+        GridPane formGrid = new GridPane();
+        formGrid.setHgap(10);
+        formGrid.setVgap(10);
+        formGrid.add(weightLabel, 0, 0);
+        formGrid.add(exerciseNameField, 1, 0);
+        formGrid.add(poundsTextField, 2, 0);
+        formGrid.add(weightLabel2, 3, 0);
+
+        CustomMenuItem formItem = new CustomMenuItem(formGrid, false);
+        formItem.getStyleClass().add("consistency-label");
+
+        // Add a submit button
+        Button submitButton = new Button("Submit");
+
+        // Create the context menu
+        ContextMenu contextMenu = new ContextMenu();
+        contextMenu.getStyleClass().add("consistency-menu");
+
+        CustomMenuItem submitItem = new CustomMenuItem(submitButton, false);
+        //When you press submit, consistency goal is now updated and will now show in CURRENT GOALS.
+        submitButton.setOnAction((event -> {
+            //Adds the goal to the database
+            sql.addWeightGoal(exerciseNameField.getValue(), poundsTextField.getText());
+            updateGoals(mainBorderPane);
+            contextMenu.hide();
+        }));
+        submitButton.getStyleClass().add("submit-button");
+
+        submitItem.getStyleClass().add("consistency-label");
+
+        contextMenu.getItems().addAll(formItem, submitItem);
+
+        weightButton.setOnAction((event -> contextMenu.show(newGoalButton, 450,600)));
+    }
+
+    /**
+     * Creates the consistencyGoalMenu
+     * @param consistencyButton the consistency button
+     * @param mainBorderPane the main border pane
+     * @param newGoalButton the new goal button
+     */
+    public void consistencyGoalMenu(BorderPane mainBorderPane, MenuItem consistencyButton, Button newGoalButton){
         // Create the form for the context menu
         Label consistencyLabel = new Label("I want to workout");
         TextField consistencyField = new TextField();
@@ -670,25 +893,20 @@ public class FitnessView extends Application {
 
         contextMenu.getItems().addAll(formItem, submitItem);
 
-        item1.setOnAction((event -> contextMenu.show(newGoalButton, 650,600)));
-
-        //UPDATES CURRENT GOALS
-        updateGoals(mainBorderPane);
-
-
-        Scene mainScene = new Scene(mainBorderPane);
-        mainScene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/main/java/CSS/style.css")).toExternalForm());
-        primaryStage.setScene(mainScene);
+        consistencyButton.setOnAction((event -> contextMenu.show(newGoalButton, 650,600)));
     }
 
     public void updateGoals (BorderPane main){
-        VBox currentGoals = new VBox();
-        if (sql.hasConsistencyGoal()){
-            //Updates the progress of the goal
-            int progress = sql.updateConsistencyGoal(CURRENT_YEAR);
-            ResultSet cGoal = sql.getConsistencyGoal();
-            try {
-                if (cGoal.next()){
+        FlowPane currentGoals = new FlowPane();
+        currentGoals.setHgap(15);
+        currentGoals.setVgap(15);
+        try {
+            //ADD CONSISTENCY GOAL
+            if (sql.hasConsistencyGoal()) {
+                //Updates the progress of the goal
+                int progress = sql.updateConsistencyGoal(CURRENT_YEAR);
+                ResultSet cGoal = sql.getConsistencyGoal();
+                if (cGoal.next()) {
                     VBox consistencyCard = new VBox();
 
                     // Load the image
@@ -698,7 +916,15 @@ public class FitnessView extends Application {
                     ImageView imageView = new ImageView(image);
                     imageView.setPreserveRatio(true);
 
-                    VBox.setMargin(imageView,new Insets(3, 0, 30, 0));
+                    //THE X BUTTON
+                    ImageView xButton = createXButton("/main/java/IMAGES/circle-xmark.png");
+                    VBox.setMargin(xButton, new Insets(10));
+                    xButton.setOnMouseClicked((event -> {
+                        currentGoals.getChildren().remove(consistencyCard); // Removes the goal on click
+                        sql.removeConsistencyGoal(); // Removes goal from database
+                    }));
+
+                    VBox.setMargin(imageView, new Insets(10, 0, 30, 0));
                     imageView.getStyleClass().add("card-header");
 
                     Label currentConsistencyGoal = new Label("I want to workout " + cGoal.getInt(1) + " times a week.");
@@ -706,27 +932,86 @@ public class FitnessView extends Application {
                     currentConsistencyGoal.setTextAlignment(TextAlignment.CENTER);
                     currentConsistencyGoal.setWrapText(true);
 
-                    Label progressLabel = new Label ("Progress: " + progress + "/52");
+                    Label progressLabel = new Label("Progress: " + progress + "/52");
                     progressLabel.getStyleClass().add("card-progress");
 
                     consistencyCard.getStyleClass().add("card");
-                    consistencyCard.getChildren().addAll(imageView, currentConsistencyGoal, progressLabel);
-                    consistencyCard.setMaxWidth((double) WINDOW_WIDTH /3);
+                    consistencyCard.getChildren().addAll(imageView, currentConsistencyGoal, progressLabel, xButton);
+                    consistencyCard.setMaxWidth((double) WINDOW_WIDTH / 3);
                     consistencyCard.setPadding(new Insets(10));
 
-                    VBox.setMargin(consistencyCard, new Insets(10));
                     consistencyCard.setAlignment(Pos.CENTER);
                     currentGoals.getChildren().add(consistencyCard);
+                    VBox.setMargin(consistencyCard, new Insets(10));
                 }
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
             }
 
-        }
+            if (sql.hasWeightGoal()) {
+                ResultSet weightGoals = sql.getWeightGoals();
+                while (!weightGoals.isAfterLast()) {
+                    createWeightGoalCard(currentGoals, weightGoals.getString(1), weightGoals.getInt(2));
+                    weightGoals.next();
+                }
+            }
+        } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
         main.setCenter(currentGoals);
         main.getCenter().getStyleClass().add("current-goals-container");
     }
 
+    public void createWeightGoalCard(FlowPane currentGoals, String exerciseName, int weight) throws SQLException {
+
+        VBox weightCard = new VBox();
+        // Load the image
+        Image image = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/main/java/IMAGES/gym (1).png"))); //Calendar image
+
+        // Create an ImageView to display the image
+        ImageView imageView = new ImageView(image);
+        imageView.setPreserveRatio(true);
+        imageView.setFitHeight(70);
+        imageView.setFitWidth(70);
+
+        VBox.setMargin(imageView, new Insets(15, 0, 30, 0));
+        imageView.getStyleClass().add("card-header");
+
+        //THE X BUTTON
+        ImageView xButton = createXButton("/main/java/IMAGES/circle-xmark.png");
+        VBox.setMargin(xButton, new Insets(10));
+        xButton.setOnMouseClicked((event -> {
+            currentGoals.getChildren().remove(weightCard); // Removes the goal on click
+            sql.removeWeightGoal(exerciseName); // Removes from the database
+        }));
+
+        Label currentWeightGoal = new Label("I want to " + exerciseName + " " + weight + " pounds.");
+        weightCard.getStyleClass().add("card-goal");
+        currentWeightGoal.setTextAlignment(TextAlignment.CENTER);
+        currentWeightGoal.setWrapText(true);
+
+        Label progressLabel = new Label("Progress: " + sql.getHighestWeight(exerciseName) + "/" + weight);
+        progressLabel.getStyleClass().add("card-progress");
+
+        weightCard.getStyleClass().add("card");
+        weightCard.getChildren().addAll(imageView, currentWeightGoal, progressLabel, xButton);
+        weightCard.setMaxWidth((double) WINDOW_WIDTH / 3);
+        weightCard.setPadding(new Insets(10));
+
+        VBox.setMargin(weightCard, new Insets(10));
+        weightCard.setAlignment(Pos.CENTER);
+        currentGoals.getChildren().add(weightCard);
+    }
+
+    /**
+     * Creates and returns a close button
+     * @param url url of image
+     * @return imageview
+     */
+    public ImageView createXButton(String url){
+        ImageView closeButton = createArrowButton("/main/java/IMAGES/circle-xmark.png");
+        closeButton.setFitHeight(30);
+        closeButton.setFitWidth(30);
+        return closeButton;
+    }
     /**
      * Adds an exercise row and adds to SQL database
      * @param grid the main gridPane

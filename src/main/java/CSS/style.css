@@ -426,24 +426,19 @@ GLOBAL VARIABLES
     -fx-highlight-text-fill: whitesmoke;
 }
 
-.weight-graph-menu {
+.graph-menu {
     -fx-background-color: black;
 }
 
-.weight-graph-grid, .weight-graph-grid:focused, .weight-graph-grid:hover, .weight-graph-grid:selected {
+.graph-grid, .graph-grid:focused, .graph-grid:hover, .graph-grid:selected {
     -fx-background-color: black;
 }
 
-.weight-graph-menu .menu-item, .weight-graph-menu .menu-item:hover, .weight-graph-menu .menu-item:focused {
+.graph-menu .menu-item, .graph-menu .menu-item:hover, .graph-menu .menu-item:focused {
     -fx-background-color: black; /* Remove background */
     -fx-text-fill: black;              /* Set text color */
     -fx-padding: 5px 10px;             /* Adjust padding */
 }
-
-/*.exercise-selection .list-cell, .exercise-selection .list-cell:hover {*/
-/*    -fx-background-color: black;*/
-/*    -fx-highlight-text-fill: whitesmoke;*/
-/*}*/
 
 .exercise-selection {
     -fx-background-color: black;
@@ -502,6 +497,7 @@ GLOBAL VARIABLES
 
 .progress-line-chart .chart-plot-background {
     -fx-background-color: #1e293b;    /* Background color of the plot area */
+    -fx-padding: 10px;
 }
 
 .progress-line-chart .chart-horizontal-grid-lines, .progress-line-chart .chart-vertical-grid-lines, .progress-line-chart .chart-horizontal-minor-grid-lines {
@@ -541,7 +537,7 @@ GLOBAL VARIABLES
 }
 
 /* Style the data series lines */
-.progress-line-chart .chart-series-line {
+.data {
     -fx-stroke: #5A02B8; /* Sky blue line color */
     -fx-stroke-width: 5px; /* Line width */
 }
@@ -558,6 +554,18 @@ GLOBAL VARIABLES
     -fx-font-family: 'Poppins';
     -fx-padding: 5px;
     -fx-font-style: italic;
+}
+
+.best-fit-line{
+    -fx-stroke: rgba(184, 2, 160, 0.5);
+    -fx-stroke-width: 3px; /* Line width */
+}
+
+/* Style the data points */
+.best-fit-line .chart-line-symbol {
+    -fx-background-color: transparent, transparent;
+    -fx-background-radius: 5px; /* Rounded corners */
+    -fx-padding: 5px; /* Size of the data points */
 }
 
 
