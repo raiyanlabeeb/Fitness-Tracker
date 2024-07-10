@@ -36,7 +36,7 @@ public class ProgressScene extends Application {
      * @param start start date
      * @param end end date
      */
-    private static List<XYChart.Data<String, Number>> populateWeightGraph(String exercise, String start, String end){
+    private List<XYChart.Data<String, Number>> populateWeightGraph(String exercise, String start, String end){
         List<XYChart.Data<String, Number>> data = new ArrayList<>();
         ResultSet results = sql.getWeightGraphData(exercise, start, end);
         try {
@@ -56,7 +56,7 @@ public class ProgressScene extends Application {
      * @param overloadButton overload button
      * @param newGoalButton new goal button
      */
-    private static void createOverloadGraph(BorderPane mainPane, MenuItem overloadButton, Button newGoalButton){
+    private void createOverloadGraph(BorderPane mainPane, MenuItem overloadButton, Button newGoalButton){
         //Weight graph menu
         ContextMenu overloadGraphMenu = new ContextMenu();
         //Create a grid pane containing some labels and a text field and a submit button
@@ -163,7 +163,7 @@ public class ProgressScene extends Application {
      * @param end end date
      * @return list of datapoints
      */
-    private static List<XYChart.Data<String, Number>> populateOverloadGraph(String exercise, String start, String end) {
+    private List<XYChart.Data<String, Number>> populateOverloadGraph(String exercise, String start, String end) {
         List<XYChart.Data<String, Number>> data = new ArrayList<>();
         ResultSet results = sql.getOverloadGraphData(exercise, start, end);
 
@@ -184,7 +184,7 @@ public class ProgressScene extends Application {
      * @param item2 the "weight" button
      * @param newGoalButton the "select graph types" button
      */
-    private static void createWeightGraph(BorderPane mainPane, MenuItem item2, Button newGoalButton){
+    private void createWeightGraph(BorderPane mainPane, MenuItem item2, Button newGoalButton){
         //Weight graph menu
         ContextMenu weightGraphMenu = new ContextMenu();
         //Create a grid pane containing some labels and a text field and a submit button
@@ -302,7 +302,7 @@ public class ProgressScene extends Application {
      * @param series series
      * @return series
      */
-    private static XYChart.Series<String, Number> calculateBestFitLine(XYChart.Series<String, Number> series) {
+    private XYChart.Series<String, Number> calculateBestFitLine(XYChart.Series<String, Number> series) {
         //To get the line of best fit, place a point at the first and then place a point at the last and connect them
         XYChart.Series<String, Number> bestFitLine = new XYChart.Series<>();
         if (series.getData().size() < 2){
