@@ -702,4 +702,24 @@ public class SQLconnector {
             throw new RuntimeException(e);
         }
     }
+
+    /**
+     * Returns the next workout ON or AFTER the given day of the week.
+     * @param dayOfWeek day of the week
+     * @return 0: day 1: workout
+     */
+    public String[] getNextWorkout(int dayOfWeek){
+        try {
+            Statement statement = connection.createStatement();
+            ResultSet data = statement.executeQuery("SELECT * FROM schedule_goal WHERE muscle_group != 'Rest' AND day_of_week >= " + dayOfWeek);
+            if (data.next()){
+                String[] returnVal = new String[2];
+                returnVal[0] = data.getString(1);
+                returnVal[1] = data.getString(2);
+                return returnVal;
+            } else { return null; }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
