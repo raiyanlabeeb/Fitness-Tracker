@@ -1,11 +1,15 @@
 package SQL;
 
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 
 import java.sql.*;
 import java.time.LocalDate;
 import java.time.temporal.WeekFields;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -624,6 +628,76 @@ public class SQLconnector {
         try {
             Statement statement = connection.createStatement();
             statement.executeUpdate("INSERT INTO weight_goal VALUES(" + "'" + exerciseName + "' , " + pounds + ")");
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Adds to the schedule goal database
+     * @param splitField the split
+     */
+    public void addScheduleGoal(ArrayList<TextField> splitField) {
+        try {
+            Statement statement = connection.createStatement();
+            ResultSet data = statement.executeQuery("SELECT * FROM schedule_goal");
+            //So there's only 1 schedule goal
+            if (!data.next()){
+                for (int i = 0; i < splitField.size(); i++) {
+                    if (splitField.get(i).getText() != null){
+                        statement.executeUpdate("INSERT INTO schedule_goal VALUES (" + i + " , '" + splitField.get(i).getText() + "')");
+                    } else {
+                        return;
+                    }
+                }
+            } else {
+                System.out.println("ALREADY EXISTING SCHEDULE");
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Is there a schedule goal?
+     * @return boolean
+     */
+    public boolean hasScheduleGoal() {
+        try {
+            Statement statement = connection.createStatement();
+            ResultSet data = statement.executeQuery("SELECT * FROM schedule_goal");
+            return data.next();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Return the schedule goal
+     * @return boolean
+     */
+    public ResultSet getScheduleGoal() {
+        try {
+            Statement statement = connection.createStatement();
+            ResultSet data = statement.executeQuery("SELECT * FROM schedule_goal");
+            if (data != null){
+                return data;
+            } else {
+                return null;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Removes the schedule goal
+     */
+    public void removeScheduleGoal() {
+        try {
+            Statement statement = connection.createStatement();
+            statement.executeUpdate("DELETE FROM schedule_goal");
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

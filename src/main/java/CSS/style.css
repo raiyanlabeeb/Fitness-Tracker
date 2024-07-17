@@ -337,15 +337,6 @@ GLOBAL VARIABLES
     -fx-background-color: black;
 }
 
-.consistency-textfield {
-    -fx-text-fill: black;
-    -fx-highlight-fill: black;
-    -fx-highlight-text-fill: black;
-    -fx-border-style: solid;
-    -fx-border-width: 2px;
-    -fx-border-color: whitesmoke;
-}
-
 /*CONTEXT MENU*/
 
 .context-menu {
@@ -446,6 +437,7 @@ GLOBAL VARIABLES
     -fx-border-width: 2px;
     -fx-border-radius: 5px;
     -fx-background-radius: 5px;
+    -fx-text-highlight-fill: rgba(245, 245, 245, 0.5);
 }
 
 .exercise-selection:hover {
@@ -460,7 +452,7 @@ GLOBAL VARIABLES
     -fx-background-color: rgba(31, 31, 31, 0.8);
 }
 
-.starting-date-selection, .ending-date-selection {
+.selection-field {
     -fx-background-color: black;
     -fx-border-color: whitesmoke;
     -fx-border-width: 2px;
@@ -468,7 +460,7 @@ GLOBAL VARIABLES
     -fx-background-radius: 5px;
 }
 
-.starting-date-selection:hover, .ending-date-selection:hover {
+.selection-field:hover {
     -fx-background-color: rgba(31, 31, 31, 0.8);
 }
 

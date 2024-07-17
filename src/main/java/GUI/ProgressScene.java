@@ -69,6 +69,7 @@ public class ProgressScene extends Application {
 
         //To show options instead of a textfield
         ComboBox<String> comboExercise = new ComboBox<>();
+        comboExercise.setPromptText("Choose Exercise");
         GridPane.setMargin(comboExercise, new Insets(5, 10, 5, 10));
         comboExercise.getStyleClass().add("exercise-selection");
         comboExercise.setEditable(false);
@@ -78,12 +79,14 @@ public class ProgressScene extends Application {
 
         overloadGraphGridPane.add(new Label("Starting:"), 0,1);
         TextField startingDate = new TextField();
-        startingDate.getStyleClass().add("starting-date-selection");
+        startingDate.setPromptText("Start Date");
+        startingDate.getStyleClass().add("selection-field");
         GridPane.setMargin(startingDate, new Insets(5, 10, 5, 10));
         overloadGraphGridPane.add(startingDate, 1, 1);
 
         TextField endingDate = new TextField();
-        endingDate.getStyleClass().add("ending-date-selection");
+        endingDate.setPromptText("End Date");
+        endingDate.getStyleClass().add("selection-field");
         overloadGraphGridPane.add(new Label("Ending:"), 0,2);
         GridPane.setMargin(endingDate, new Insets(5, 10, 5, 10));
         overloadGraphGridPane.add(endingDate, 1, 2);
@@ -148,6 +151,19 @@ public class ProgressScene extends Application {
                     dataPoint.getNode().setOnMouseEntered(event2 -> dataPoint.getNode().setStyle("-fx-background-color: blue, white; -fx-background-insets: 0, 2;"));
                     dataPoint.getNode().setOnMouseExited(event2 -> dataPoint.getNode().setStyle(""));
                 }
+
+                //TOOL TIPS FOR LINE OF BEST FIT
+                for (XYChart.Data<?,?> dataPoint : bestFitLine.getData()) {
+                    Tooltip tooltip = new Tooltip(
+                            "Date: " + dataPoint.getXValue() + "\nOverload Percentage: " + dataPoint.getYValue()
+                    );
+                    tooltip.getStyleClass().add("tool-tip");
+                    tooltip.setShowDelay(Duration.ZERO); //Set the duration to 0
+                    Tooltip.install(dataPoint.getNode(), tooltip);
+                    // Make the node visible when hovering
+                    dataPoint.getNode().setOnMouseEntered(event2 -> dataPoint.getNode().setStyle("-fx-background-color: blue, white; -fx-background-insets: 0, 2;"));
+                    dataPoint.getNode().setOnMouseExited(event2 -> dataPoint.getNode().setStyle(""));
+                }
             }}));
 
         //Choose your weight graph
@@ -197,6 +213,7 @@ public class ProgressScene extends Application {
 
         //To show options instead of a textfield
         ComboBox<String> comboExercise = new ComboBox<>();
+        comboExercise.setPromptText("Choose Exercise");
         GridPane.setMargin(comboExercise, new Insets(5, 10, 5, 10));
         comboExercise.getStyleClass().add("exercise-selection");
         comboExercise.setEditable(false);
@@ -205,12 +222,14 @@ public class ProgressScene extends Application {
 
         weightGraphGridPane.add(new Label("Starting:"), 0,1);
         TextField startingDate = new TextField();
-        startingDate.getStyleClass().add("starting-date-selection");
+        startingDate.setPromptText("Start Date");
+        startingDate.getStyleClass().add("selection-field");
         GridPane.setMargin(startingDate, new Insets(5, 10, 5, 10));
         weightGraphGridPane.add(startingDate, 1, 1);
 
         TextField endingDate = new TextField();
-        endingDate.getStyleClass().add("ending-date-selection");
+        endingDate.setPromptText("End Date");
+        endingDate.getStyleClass().add("selection-field");
         weightGraphGridPane.add(new Label("Ending:"), 0,2);
         GridPane.setMargin(endingDate, new Insets(5, 10, 5, 10));
         weightGraphGridPane.add(endingDate, 1, 2);

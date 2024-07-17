@@ -15,6 +15,8 @@ import javafx.stage.Stage;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import static GUI.CalendarScene.*;
@@ -79,7 +81,7 @@ public class GoalScene extends Application {
 
         MenuItem item1 = new MenuItem("Consistency");
         MenuItem item2 = new MenuItem("Weight");
-        MenuItem item3 = new MenuItem("Strength");
+        MenuItem item3 = new MenuItem("Schedule");
         item1.getStyleClass().add("category-menu-option");
         item2.getStyleClass().add("category-menu-option");
         item3.getStyleClass().add("category-menu-option");
@@ -89,6 +91,7 @@ public class GoalScene extends Application {
 
         consistencyGoalMenu(mainBorderPane, item1, newGoalButton); // Creates the consistency goal menu
         weightGoalMenu(mainBorderPane, item2, newGoalButton);
+        scheduleGoalMenu(mainBorderPane, item3, newGoalButton);
         //UPDATES CURRENT GOALS
         updateGoals(mainBorderPane);
 
@@ -96,6 +99,75 @@ public class GoalScene extends Application {
         Scene mainScene = new Scene(mainBorderPane);
         mainScene.getStylesheets().add(Objects.requireNonNull(CalendarScene.class.getResource("/main/java/CSS/style.css")).toExternalForm());
         primaryStage.setScene(mainScene);
+    }
+
+    /**
+     * Creates the schedule goal menu.
+     * @param mainBorderPane main border pane
+     * @param scheduleButton schedule button to click
+     * @param newGoalButton new goal button
+     */
+    public void scheduleGoalMenu(BorderPane mainBorderPane, MenuItem scheduleButton, Button newGoalButton) {
+//         Create the context menu
+        ContextMenu contextMenu = new ContextMenu();
+        contextMenu.getStyleClass().add("consistency-menu");
+
+        //The header
+        Label headerMenuItem = new Label("My Weekly Split");
+        CustomMenuItem headerItem = new CustomMenuItem(headerMenuItem, false);
+        headerItem.getStyleClass().add("category-menu-header");
+
+        GridPane weeklySplit = new GridPane(); //The weekly split gridpane
+        weeklySplit.setHgap(20);
+        weeklySplit.setVgap(10);
+        weeklySplit.setPadding(new Insets(10));
+        CustomMenuItem formItem = new CustomMenuItem(weeklySplit, false);
+        formItem.getStyleClass().add("consistency-label");
+        ArrayList<TextField> splitFields = new ArrayList<>(); // the split labels list
+        for (int i = 0; i < 7; i++) {
+            //Create the day label
+            Label dayLabel = new Label();
+            dayLabel.getStyleClass().add("consistency-label");
+            if (i == 0) {
+                dayLabel.setText("Sun:");
+            } else if (i == 1) {
+                dayLabel.setText("Mon:");
+            } else if (i == 2) {
+                dayLabel.setText("Tue:");
+            } else if (i == 3) {
+                dayLabel.setText("Wed:");
+            } else if (i == 4) {
+                dayLabel.setText("Thu:");
+            } else if (i == 5) {
+                dayLabel.setText("Fri:");
+            } else {
+                dayLabel.setText("Sat:");
+            }
+
+            //Add the label
+            weeklySplit.add(dayLabel, 0, i);
+            weeklySplit.add(new TextField(){{
+                setPromptText("Muscle Group to Train");
+                getStyleClass().add("selection-field");
+                splitFields.add(this);
+            }}, 1, i);
+        }
+
+//        Submit button
+        Button submitButton = new Button("Submit");
+        CustomMenuItem submitItem = new CustomMenuItem(submitButton, false);
+        submitButton.setOnAction((event -> {
+            sql.addScheduleGoal(splitFields);
+            updateGoals(mainBorderPane);
+            contextMenu.hide();
+        }));
+        submitButton.getStyleClass().add("submit-button");
+        submitItem.getStyleClass().add("consistency-label");
+
+        contextMenu.getItems().addAll(headerItem, formItem, submitItem);
+
+        scheduleButton.setOnAction((event -> contextMenu.show(newGoalButton, 450,500)));
+
     }
 
     /**
@@ -111,7 +183,7 @@ public class GoalScene extends Application {
         exerciseNameField.setPromptText("Exercise Name");
         TextField poundsTextField = new TextField();
         poundsTextField.setAlignment(Pos.CENTER);
-        poundsTextField.getStyleClass().add("consistency-textfield");
+        poundsTextField.getStyleClass().add("selection-field");
         poundsTextField.setPrefWidth((double) WINDOW_WIDTH / 7);
         poundsTextField.setPromptText("Weight");
         sql.addComboBoxExercises(exerciseNameField); // Add all exercises to the combo box
@@ -164,7 +236,7 @@ public class GoalScene extends Application {
         // Create the form for the context menu
         Label consistencyLabel = new Label("I want to workout");
         TextField consistencyField = new TextField();
-        consistencyField.getStyleClass().add("consistency-textfield");
+        consistencyField.getStyleClass().add("selection-field");
         consistencyField.setPrefWidth((double) WINDOW_WIDTH /12);
         consistencyField.setAlignment(Pos.CENTER);
         Label consistencyLabel2 = new Label("times a week.");
@@ -257,7 +329,6 @@ public class GoalScene extends Application {
                     VBox.setMargin(consistencyCard, new Insets(10));
                 }
             }
-
             if (sql.hasWeightGoal()) {
                 ResultSet weightGoals = sql.getWeightGoals();
                 while (!weightGoals.isAfterLast()) {
@@ -265,11 +336,76 @@ public class GoalScene extends Application {
                     weightGoals.next();
                 }
             }
+            if (sql.hasScheduleGoal()){
+                ResultSet scheduleGoal = sql.getScheduleGoal();
+                if (!scheduleGoal.isAfterLast()) {
+                    createScheduleGoalCard(scheduleGoal, currentGoals);
+                    scheduleGoal.next();
+                }
+            }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
         main.setCenter(currentGoals);
         main.getCenter().getStyleClass().add("current-goals-container");
+    }
+
+    private void createScheduleGoalCard(ResultSet scheduleGoal, FlowPane currentGoals) throws SQLException {
+        VBox scheduleCard = new VBox();
+        // Load the image
+        Image image = new Image(Objects.requireNonNull(CalendarScene.class.getResourceAsStream("/main/java/IMAGES/calendar.png"))); //Calendar image
+
+        // Create an ImageView to display the image
+        ImageView imageView = new ImageView(image);
+        imageView.setPreserveRatio(true);
+        imageView.setFitHeight(70);
+        imageView.setFitWidth(70);
+
+        VBox.setMargin(imageView, new Insets(15, 0, 30, 0));
+        imageView.getStyleClass().add("card-header");
+
+        //THE X BUTTON
+        ImageView xButton = createXButton("/main/java/IMAGES/circle-xmark.png");
+        VBox.setMargin(xButton, new Insets(10));
+        xButton.setOnMouseClicked((event -> {
+            currentGoals.getChildren().remove(scheduleCard); // Removes the goal on click
+            sql.removeScheduleGoal(); // Removes from the database
+        }));
+
+        scheduleCard.getChildren().addAll(imageView);
+        ArrayList<String> daysOfWeek = new ArrayList<>(List.of("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"));
+        int i = 0;
+        GridPane daysGrid = new GridPane();
+        daysGrid.setPadding(new Insets(10));
+        daysGrid.setAlignment(Pos.CENTER);
+        daysGrid.setGridLinesVisible(true);
+        while (scheduleGoal.next()) {
+            Label label1 = new Label(daysOfWeek.get(scheduleGoal.getInt(1)));
+            Label label2 = new Label(scheduleGoal.getString(2));
+            label1.setTextAlignment(TextAlignment.CENTER);
+            label1.setWrapText(true);
+            label1.setPadding(new Insets(10, 15, 10, 15));
+            label2.setPadding(new Insets(10, 15, 10, 15));
+            label2.setTextAlignment(TextAlignment.CENTER);
+            label2.setWrapText(true);
+            daysGrid.add(label1, i, 0);
+            daysGrid.add(label2, i, 1);
+            scheduleCard.getStyleClass().add("card-goal");
+            i++;
+            daysGrid.getColumnConstraints().add(new ColumnConstraints() {{
+                setMinWidth(WINDOW_WIDTH/10);
+            }});
+        }
+        scheduleCard.getChildren().addAll(daysGrid, xButton);
+
+
+        scheduleCard.getStyleClass().add("card");
+        scheduleCard.setPrefWidth((double) WINDOW_WIDTH / 2);
+        scheduleCard.setPadding(new Insets(10));
+
+        VBox.setMargin(scheduleCard, new Insets(10));
+        scheduleCard.setAlignment(Pos.CENTER);
+        currentGoals.getChildren().add(scheduleCard);
     }
 
     /**
@@ -280,7 +416,6 @@ public class GoalScene extends Application {
      * @throws SQLException
      */
     public void createWeightGoalCard(FlowPane currentGoals, String exerciseName, int weight) throws SQLException {
-
         VBox weightCard = new VBox();
         // Load the image
         Image image = new Image(Objects.requireNonNull(CalendarScene.class.getResourceAsStream("/main/java/IMAGES/gym (1).png"))); //Calendar image

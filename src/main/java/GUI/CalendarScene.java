@@ -13,8 +13,6 @@ import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.*;
 
-
-
 public class CalendarScene extends Application {
     //Instance of the SQL database
 
