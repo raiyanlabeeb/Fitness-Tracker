@@ -1,15 +1,15 @@
 package SQL;
 
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.sql.*;
 import java.time.LocalDate;
 import java.time.temporal.WeekFields;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -21,14 +21,68 @@ public class SQLconnector {
 
     public SQLconnector() {
         try {
-            String password = "";
-            this.connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/nice", "raiyanl", "!Green10222004");
+            BufferedReader in = new BufferedReader(new FileReader("src/main/java/GUI/password"));
+            String username = in.readLine(); // Read the first line (username)
+            String password = in.readLine(); // Read the second line (password)
+            this.connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/nice", username, password);
             Statement statement = connection.createStatement();
-        } catch (SQLException e) {
+        } catch (Exception e) {
             System.out.println(e);
         }
     }
 
+    public void quickAdd(){
+        try (BufferedReader br = new BufferedReader(new FileReader("src/main/java/FILES/input"))) {
+            Statement statement = connection.createStatement();
+            String line;
+            String date = "";
+            String name;
+            String exercise_title;
+            String weight;
+            String reps;
+            int lineNum = 0;
+            while ((line = br.readLine()) != null) {
+                if (lineNum == 0){ //We know this line is the name of the exercise
+                    String[] s = line.split(" ");
+                    //Prevent duplicate entries
+                    date = formatDate(s[1]);
+                    name = s[0].substring(0, s[0].length() - 1);
+                    if (!statement.executeQuery("SELECT * FROM workout WHERE workout_date = '" + date + "'").next()){
+                        statement.executeUpdate("INSERT INTO workout (workout_title, workout_date) VALUES(" + "'" +  name + "', " + "'" + formatDate(s[1]) + "'"+ ")");
+                        System.out.println("Successful database entry.");
+                    }
+                }
+
+                else {
+                    String[] temp = line.split(":");
+                    exercise_title = temp[0];
+                    String[] temp2 = temp[1].split(",");
+                    //Loop through every set
+                    for (int i = 0; i < temp2.length; i++){
+                        //split into weight x reps
+                        String[] temp3 = temp2[i].split("x");
+                        //If it's a body weight exercise, there will be no weight
+                        if (temp3.length == 1){
+                            weight = "0";
+                            reps = temp3[0];
+                        } else {
+                            weight = temp3[0];
+                            reps = temp3[1];
+                        }
+                        //Prevent duplicate entries
+                        if (!statement.executeQuery("SELECT * FROM exercise WHERE exercise_name = '" + exercise_title + "' AND set_id = " + i+1 + " AND workout_date = '" + date + "'").next()){
+                            statement.executeUpdate("INSERT INTO exercise (exercise_name, set_id, reps, weight, workout_date) VALUES" +
+                                    "(" + "'" + exercise_title + "', " + (i + 1) + "," + reps + "," + weight + ", '" + date + "')");
+                            System.out.println("Successful database entry.");
+                        }
+                    }
+                }
+                lineNum++;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
     /**
      * Get the max reps done on a set given a date and an exercise
      * @param date date
@@ -198,12 +252,12 @@ public class SQLconnector {
             e_date = formatDate(e_date);
             Statement statement = connection.createStatement();
             //Check and see if there's already an entry in the WORKOUT table for the day
-            if (statement.executeQuery("SELECT * FROM workout WHERE workout_date = '" + e_date + "'").next() == false){
+            if (!statement.executeQuery("SELECT * FROM workout WHERE workout_date = '" + e_date + "'").next()){
                 statement.executeUpdate("INSERT INTO workout (workout_title, workout_date) VALUES(" + "'" + w_title + "', " + "'" + e_date + "'"+ ")");
                 System.out.println("Successful workout entry.");
             }
             //Prevent duplicate entries
-            if (statement.executeQuery("SELECT * FROM exercise WHERE exercise_name = '" + e_name + "' AND set_id = " + s_id + " AND workout_date = '" + e_date + "'").next() == false){
+            if (!statement.executeQuery("SELECT * FROM exercise WHERE exercise_name = '" + e_name + "' AND set_id = " + s_id + " AND workout_date = '" + e_date + "'").next()){
                 statement.executeUpdate("INSERT INTO exercise (exercise_name, set_id, reps, weight, workout_date) VALUES(" + "'" + e_name + "', " + s_id + "," + re + "," + we + ", '" + e_date + "')");
                 System.out.println("Successful database entry.");
             }

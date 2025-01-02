@@ -11,6 +11,9 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.*;
@@ -130,11 +133,16 @@ public class CalendarScene extends Application {
         manageGoals.getStyleClass().add("menu-option");
         MenuItem progress = new MenuItem("Progress");
         progress.getStyleClass().add("menu-option");
-        contextMenu.getItems().addAll(headerItem, createWorkout, manageGoals, progress);
+        MenuItem quickAdd = new MenuItem("QuickAdd");
+        quickAdd.getStyleClass().add("menu-option");
+        contextMenu.getItems().addAll(headerItem, createWorkout, manageGoals, progress, quickAdd);
 
         createWorkout.setOnAction((event -> workoutScene.makeWorkoutScene(primaryStage, null, 0, 0)));
         manageGoals.setOnAction((event -> goalScene.makeGoalsScene(primaryStage)));
         progress.setOnAction((event -> progressScene.makeProgressScene(primaryStage)));
+        quickAdd.setOnAction((event -> {
+            sql.quickAdd();
+        }));
 
 
         Image plusImage = new Image(Objects.requireNonNull(CalendarScene.class.getResourceAsStream("/main/java/IMAGES/plus-small.png"))); //PLUS BUTTON
@@ -320,7 +328,7 @@ public class CalendarScene extends Application {
             for (int j = 0; j < 7; j++) {
                 if (isToday(year, month + 1, day, today)){ // if it's today, start searching for the next workout
                     checkingforSchedule = true;
-                    nextWorkout = sql.getNextWorkout(LocalDate.of(year, month + 1, day).getDayOfWeek().getValue());
+                    nextWorkout = sql.getNextWorkout(LocalDate.of(year, month + 1, day).getDayOfWeek().getValue() - 1);
                 }
 
 
